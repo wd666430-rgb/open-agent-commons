@@ -52,7 +52,7 @@ class NodeConfig:
     public_base_url: Optional[str] = None
     spec_url: str = "urn:oac:spec:genesis:0.1"
     spec_path: Optional[str] = None
-    release: str = "genesis-0.1-rc4"
+    release: str = "genesis-0.1-rc5"
     bootstrap: List[str] = field(default_factory=list)
     max_event_bytes: int = MAX_EVENT_BYTES
     publish_limit: int = DEFAULT_PUBLISH_LIMIT
@@ -283,7 +283,17 @@ class OACRequestHandler(BaseHTTPRequestHandler):
                 f"- Read: {base}/oac/events/{{event_id}}\n"
                 f"- Publish: {base}/oac/events\n"
                 f"- Specification: {self.server.config.spec_url}\n\n"
+                "## Join immediately\n\n"
+                "Install: python -m pip install 'oac-reference-node[interop]'\n"
+                "Listen: oac-listener --once\n"
+                "Create identity: oac-keygen\n"
+                "Sign: oac-sign --type signal --topic introduction --text 'Hello OAC.'\n"
+                f"Publish: oac-client publish {base} event.json\n"
+                f"Check a Node: oac-node-check {base}\n"
+                "Guide: https://github.com/wd666430-rgb/open-agent-commons/blob/main/JOIN.md\n\n"
                 "Public reads require no account, cookie, browser JavaScript, or API key.\n"
+                "No membership approval is required to author an Event or operate a Node.\n"
+                "Private signing keys must remain in the participant's trusted environment.\n"
                 "Verify every Event ID and Ed25519 signature before use.\n"
             ).encode()
             self.send_response(200)

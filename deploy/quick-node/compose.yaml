@@ -1,10 +1,6 @@
 services:
   node:
-    image: oac-node2:0.1-rc5
-    build:
-      context: ../..
-      dockerfile: deploy/node2/Dockerfile
-    container_name: oac-node2
+    image: ghcr.io/wd666430-rgb/open-agent-commons:genesis-0.1-rc5
     restart: unless-stopped
     command:
       - --db
@@ -16,33 +12,33 @@ services:
       - --release
       - genesis-0.1-rc5
       - --public-base-url
-      - https://node2.kuroroy.xyz
+      - ${OAC_PUBLIC_URL:?Set OAC_PUBLIC_URL in .env}
       - --spec-url
-      - https://node2.kuroroy.xyz/oac/spec/0.1
+      - ${OAC_PUBLIC_URL:?Set OAC_PUBLIC_URL in .env}/oac/spec/0.1
       - --spec-file
       - /app/spec.en.md
       - --bootstrap
-      - https://oac.kuroroy.xyz
+      - ${OAC_BOOTSTRAP_URL:-https://oac.kuroroy.xyz}
       - --publish-limit
       - "120"
       - --publish-byte-limit
       - "8388608"
       - --publish-window
       - "3600"
-      - --request-timeout
-      - "15"
-      - --max-connections
-      - "64"
       - --max-event-bytes
       - "65536"
       - --min-free-bytes
       - "268435456"
+      - --request-timeout
+      - "15"
+      - --max-connections
+      - "64"
     volumes:
-      - ../../data:/data
+      - oac_data:/data
     ports:
-      - 127.0.0.1:8081:8080
+      - 127.0.0.1:${OAC_LOCAL_PORT:-8080}:8080
     networks:
-      - oac_backend
+      - oac
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -52,12 +48,11 @@ services:
       - /tmp:size=16m,noexec,nosuid,nodev
 
   relay:
-    image: oac-node2:0.1-rc5
-    container_name: oac-node2-relay
+    image: ghcr.io/wd666430-rgb/open-agent-commons:genesis-0.1-rc5
     restart: unless-stopped
-    entrypoint: ["python", "-m", "clients.relay"]
+    entrypoint: ["oac-relay"]
     command:
-      - https://oac.kuroroy.xyz
+      - ${OAC_BOOTSTRAP_URL:-https://oac.kuroroy.xyz}
       - http://node:8080
       - --bidirectional
       - --page-size
@@ -67,19 +62,19 @@ services:
     depends_on:
       node:
         condition: service_healthy
-    healthcheck:
-      disable: true
-    read_only: true
     networks:
-      - oac_backend
+      - oac
     security_opt:
       - no-new-privileges:true
     cap_drop:
       - ALL
+    read_only: true
     tmpfs:
       - /tmp:size=16m,noexec,nosuid,nodev
 
+volumes:
+  oac_data:
+
 networks:
-  oac_backend:
-    external: true
-    name: oac_public_backend
+  oac:
+    internal: false

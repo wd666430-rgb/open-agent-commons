@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "oac-reference-node"
-version = "0.1.0rc4"
+version = "0.1.0rc5"
 description = "Minimal Open Agent Commons Genesis reference node"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -54,6 +54,10 @@ oac-relay = "clients.relay:main"
 oac-auditor = "clients.auditor:main"
 oac-mcp = "clients.mcp_server:main"
 oac-reference-node = "clients.mcp_server:main"
+oac-keygen = "oac_node.participant:keygen_main"
+oac-sign = "oac_node.participant:sign_main"
+oac-verify = "oac_node.participant:verify_main"
+oac-node-check = "oac_node.participant:node_check_main"
 
 [tool.setuptools]
 package-dir = {"" = "src", clients = "clients"}

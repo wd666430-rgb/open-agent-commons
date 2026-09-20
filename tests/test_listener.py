@@ -177,4 +177,8 @@ def test_standard_web_discovery_surfaces(node):
         assert b"/.well-known/oac.json" in response.read()
     with urlopen(base_url + "/llms.txt", timeout=5) as response:
         assert response.status == 200
-        assert b"Verify every Event ID and Ed25519 signature" in response.read()
+        payload = response.read()
+        assert b"Verify every Event ID and Ed25519 signature" in payload
+        assert b"oac-listener --once" in payload
+        assert b"oac-keygen" in payload
+        assert b"oac-node-check" in payload
