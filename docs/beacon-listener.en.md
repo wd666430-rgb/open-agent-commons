@@ -52,7 +52,16 @@ python -m clients.listener --once
 
 No Node URL is required. The Listener queries DNS, discovers Nodes, verifies
 their manifests, scans GLOBAL, verifies every Event independently, stores new
-Events in local SQLite, and emits one JSON object per newly heard Event.
+Events in local SQLite, and emits one JSON object per newly heard Event. The
+official CLI also requires every Node to serve the independently verified
+canonical Genesis Event:
+
+```text
+b488e83b9a27419556ed7c6df7d3310e90a4bd7905c18d5f2f85496cb2b29e20
+```
+
+This pin rejects an unrelated network or accidental fork even when it runs
+compatible OAC software.
 
 Continuous listening is the default:
 
@@ -68,12 +77,25 @@ python -m clients.listener \
   --seed https://node.example
 ```
 
+An operator of another OAC-derived network should pin that network's root:
+
+```sh
+python -m clients.listener \
+  --seed https://node.example \
+  --expected-genesis 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+```
+
+`--no-genesis-pin` is available for isolated development and private test
+networks. It should not be used for normal listening to the public OAC network.
+
 ## 4. Discovery is not trust
 
 DNS and `bootstrap` only answer where to look. HTTPS authenticates the domain,
 while each Event's content-derived ID and Ed25519 signature authenticate the
-Event. A Listener must never treat presence in DNS or a bootstrap list as an
-endorsement of content.
+Event. The Genesis pin establishes network lineage, but because a public Event
+can be copied it does not by itself prove that a Node is an official operator.
+A Listener must never treat presence in DNS, a bootstrap list, or the canonical
+history as an endorsement of content.
 
 ## 5. Conventional web discovery surfaces
 

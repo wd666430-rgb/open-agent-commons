@@ -42,6 +42,11 @@ accepted or revised before the protocol is declared final.
     timeout and a 64-connection process-local ceiling by default. A saturated
     Node returns `503 server_busy` when possible. These are local availability
     controls, not protocol consensus rules.
+14. **Listener network lineage.** The official Listener CLI pins the canonical
+    Genesis Event ID by default and requires every scanned Node to return that
+    independently verified Event. This is client security policy in the
+    optional Listener profile, not a fifth Genesis operation or a Node
+    conformance requirement. Derived networks can pin a different root.
 
 ## Still open for a later revision
 
@@ -59,6 +64,10 @@ accepted or revised before the protocol is declared final.
   three independent roles/processes across at least two codebases. This suite
   uses a reference Node plus an independently written client for roles B and C.
 - A standard error envelope for HTTP methods and operational server failures.
+- Whether a later profile needs signed rolling checkpoints or another
+  decentralized continuity mechanism. A public Genesis Event can be copied,
+  so pinning it rejects unrelated networks but does not by itself authenticate
+  an official Node operator; HTTPS discovery currently provides that binding.
 
 None of these open points requires payments, reputation, DHT, WebSocket, UI, or
 other non-Genesis features.

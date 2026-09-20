@@ -25,6 +25,7 @@ DEFAULT_HTTPS_SEEDS = (
     "https://oac.kuroroy.xyz",
     "https://node2.kuroroy.xyz",
 )
+CANONICAL_GENESIS_ID = "b488e83b9a27419556ed7c6df7d3310e90a4bd7905c18d5f2f85496cb2b29e20"
 DISCOVERY_PATH = "/.well-known/oac.json"
 
 
@@ -154,18 +155,31 @@ def listen_once(
     page_size: int = 100,
     max_nodes: int = 32,
     max_pages: int = 10_000,
+    expected_genesis: Optional[str] = None,
     on_event: Optional[Callable[[str, Dict[str, Any]], None]] = None,
 ) -> ListenStats:
     if not 1 <= page_size <= 500:
         raise ListenerError("page_size must be 1..500")
+    if expected_genesis is not None and (
+        len(expected_genesis) != 64
+        or any(character not in "0123456789abcdef" for character in expected_genesis)
+    ):
+        raise ListenerError("expected_genesis must be a lowercase SHA-256 Event ID")
     manifests, discovery_errors = discover_network(seeds, max_nodes=max_nodes)
     stats = ListenStats(nodes=len(manifests), errors=len(discovery_errors))
     for node in manifests:
         cursor: Optional[str] = None
         observed_cursors = set()
         try:
+            client = OACClient(node)
+            if expected_genesis is not None:
+                # The content-derived ID binds the complete signed Genesis
+                # Event. This rejects unrelated or accidental forks. Official
+                # Node authenticity still depends on HTTPS discovery because
+                # a public Genesis Event can legitimately be copied.
+                client.read(expected_genesis)
             for _ in range(max_pages):
-                page = OACClient(node).global_page(cursor=cursor, limit=page_size)
+                page = client.global_page(cursor=cursor, limit=page_size)
                 events = page.get("events")
                 next_cursor = page.get("cursor")
                 if not isinstance(events, list):
@@ -203,6 +217,16 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     parser.add_argument("--max-pages", type=int, default=10_000)
     parser.add_argument("--interval", type=float, default=60)
     parser.add_argument("--once", action="store_true")
+    parser.add_argument(
+        "--expected-genesis",
+        default=CANONICAL_GENESIS_ID,
+        help="require every Node to serve this verified Genesis Event ID",
+    )
+    parser.add_argument(
+        "--no-genesis-pin",
+        action="store_true",
+        help="listen to a non-canonical test or private network without a Genesis pin",
+    )
     args = parser.parse_args(argv)
     if args.interval <= 0 and not args.once:
         parser.error("--interval must be positive")
@@ -236,6 +260,9 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
                     page_size=args.page_size,
                     max_nodes=args.max_nodes,
                     max_pages=args.max_pages,
+                    expected_genesis=(
+                        None if args.no_genesis_pin else args.expected_genesis
+                    ),
                     on_event=emit,
                 )
                 print(

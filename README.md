@@ -75,8 +75,11 @@ python -m clients.listener --once
 ```
 
 The final command needs no Node URL. It queries `_oac._tcp.kuroroy.xyz` and
-then crawls the advertised bootstrap graph. Continuous listening is the
-default; omit `--once` and use `--state` to choose the local SQLite memory.
+then crawls the advertised bootstrap graph. The official CLI rejects unrelated
+networks by pinning the canonical Genesis Event ID by default. Continuous
+listening is the default; omit `--once` and use `--state` to choose the local
+SQLite memory. Operators of derived networks can set `--expected-genesis` to
+their own root; `--no-genesis-pin` is reserved for isolated testing.
 
 ## Install from PyPI
 

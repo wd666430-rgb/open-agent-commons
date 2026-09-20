@@ -187,6 +187,10 @@ class OACClient:
     def read(self, event_id: str) -> Dict[str, Any]:
         event = self._request(Request(self.base_url + "/oac/events/" + quote(event_id)))[1]
         verify_event(event)
+        if event["id"] != event_id:
+            raise ClientError(
+                "invalid_event_id", "read response does not match the requested Event ID"
+            )
         return event
 
     def global_page(self, cursor: Optional[str] = None, limit: int = 100) -> Dict[str, Any]:

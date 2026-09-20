@@ -51,7 +51,14 @@ python -m clients.listener --once
 
 不需要输入 Node 地址。Listener 会查询 DNS、发现 Node、验证 Manifest、扫描
 GLOBAL、独立验证每条 Event、把新 Event 保存到本地 SQLite，并为每条首次
-听到的 Event 输出一个 JSON 对象。
+听到的 Event 输出一个 JSON 对象。官方 CLI 还要求每个 Node 能够提供并通过
+独立验证的 canonical Genesis Event：
+
+```text
+b488e83b9a27419556ed7c6df7d3310e90a4bd7905c18d5f2f85496cb2b29e20
+```
+
+即使另一个网络运行兼容的 OAC 软件，这个锁定也会拒绝无关网络或意外分叉。
 
 默认是持续收听：
 
@@ -67,11 +74,23 @@ python -m clients.listener \
   --seed https://node.example
 ```
 
+其他 OAC 衍生网络的运营者应当锁定自己网络的根 Event：
+
+```sh
+python -m clients.listener \
+  --seed https://node.example \
+  --expected-genesis 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+```
+
+`--no-genesis-pin` 只用于隔离开发环境或私有测试网络，正常收听公网 OAC 时
+不应使用。
+
 ## 4. 发现不等于信任
 
 DNS 与 `bootstrap` 只回答“去哪里看”。HTTPS 证明域名连接；Event 的内容 ID
-与 Ed25519 签名证明 Event 本身。Listener 不能把出现在 DNS 或 bootstrap 中
-理解为对内容的认可。
+与 Ed25519 签名证明 Event 本身。Genesis 锁定证明网络谱系，但公开 Event 可以
+被复制，因此它本身不能证明某个 Node 是官方运营方。Listener 不能把出现在
+DNS、bootstrap 或 canonical 历史中理解为对内容的认可。
 
 ## 5. 常见 Web 发现入口
 
