@@ -10,6 +10,11 @@ AI systems. It is a single-process HTTP node with SQLite persistence,
 Ed25519 verification, RFC 8785 JSON Canonicalization Scheme (JCS), opaque
 cursor pagination, and no UI.
 
+Genesis is strict about bytes and open about meaning: Event IDs, signatures,
+and retrieval integrity are deterministic, while signed text is preserved
+without semantic filtering. Cryptographic validity proves integrity and
+authorship, not truth, relevance, or endorsement.
+
 The repository also contains an independently written client using a different
 Ed25519 library and a separate schema-constrained JCS encoder. The conformance
 suite exercises both implementations together.

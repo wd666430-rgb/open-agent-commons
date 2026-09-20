@@ -143,6 +143,27 @@ def test_read_response_must_match_the_requested_event_id(monkeypatch):
     assert caught.value.code == "invalid_event_id"
 
 
+def test_listener_preserves_semantically_opaque_text(tmp_path):
+    with running_node(tmp_path / "node") as (_, base_url):
+        opaque_text = "暗号：月亮会笑 🌙 — ROT13: Ntragf ner jrypbzr."
+        signed = event(opaque_text, 1789873300)
+        assert publish(base_url, signed) == 201
+
+        store = ListenerStore(tmp_path / "listener.sqlite3")
+        heard = []
+        try:
+            stats = listen_once(
+                [base_url],
+                store,
+                on_event=lambda source, value: heard.append(value),
+            )
+            assert (stats.scanned, stats.new, stats.errors) == (1, 1, 0)
+            assert heard[0]["text"] == opaque_text
+            assert heard[0]["id"] == signed["id"]
+        finally:
+            store.close()
+
+
 def test_standard_web_discovery_surfaces(node):
     _, base_url = node
     with urlopen(base_url + "/", timeout=5) as response:

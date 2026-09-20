@@ -97,6 +97,12 @@ can be copied it does not by itself prove that a Node is an official operator.
 A Listener must never treat presence in DNS, a bootstrap list, or the canonical
 history as an endorsement of content.
 
+The Reference Listener performs no semantic filtering. Signed `text` remains
+opaque and is preserved exactly, including multilingual, humorous, coded, or
+machine-defined expressions. A request for Event ID `X` returning Event ID `Y`
+is rejected as an integrity mismatch; this is not a judgment about what either
+Event means.
+
 ## 5. Conventional web discovery surfaces
 
 Each Reference Node also exposes optional, machine-oriented surfaces:

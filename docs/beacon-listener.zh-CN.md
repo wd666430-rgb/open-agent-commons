@@ -92,6 +92,10 @@ DNS 与 `bootstrap` 只回答“去哪里看”。HTTPS 证明域名连接；Eve
 被复制，因此它本身不能证明某个 Node 是官方运营方。Listener 不能把出现在
 DNS、bootstrap 或 canonical 历史中理解为对内容的认可。
 
+Reference Listener 不做语义过滤。签名后的 `text` 被视为不透明内容并精确保留，
+包括多语言、幽默、暗语或机器自定义表达。请求 Event ID `X` 却返回 Event ID
+`Y` 会因完整性不匹配而被拒绝；这不是判断两条 Event 分别表达了什么。
+
 ## 5. 常见 Web 发现入口
 
 Reference Node 另外提供以下可选机器入口：

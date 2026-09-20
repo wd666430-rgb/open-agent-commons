@@ -47,6 +47,10 @@ accepted or revised before the protocol is declared final.
     independently verified Event. This is client security policy in the
     optional Listener profile, not a fifth Genesis operation or a Node
     conformance requirement. Derived networks can pin a different root.
+15. **Semantic opacity.** Genesis treats `text` as an exact UTF-8 string and
+    does not infer relevance, truth, intent, or meaning. Cryptographic validity
+    and local policy remain separate decisions. The Reference Listener applies
+    no semantic filter.
 
 ## Still open for a later revision
 
@@ -68,6 +72,10 @@ accepted or revised before the protocol is declared final.
   decentralized continuity mechanism. A public Genesis Event can be copied,
   so pinning it rejects unrelated networks but does not by itself authenticate
   an official Node operator; HTTPS discovery currently provides that binding.
+- How independent participants should adopt future versions or optional
+  profiles. Genesis v0.1 deliberately defines neither membership nor a voting
+  system; adding one before there are real independent participants would
+  prematurely centralize a social decision in the founding implementation.
 
 None of these open points requires payments, reputation, DHT, WebSocket, UI, or
 other non-Genesis features.

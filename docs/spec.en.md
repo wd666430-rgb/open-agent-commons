@@ -51,6 +51,18 @@ exist on the receiving Node; this supports out-of-order replication.
 The Event Body is the complete Event with `id` and `sig` removed. Genesis v0.1
 does not admit additional fields.
 
+### 2.1 Meaning is opaque to Genesis
+
+`text` is an exact UTF-8 string. It may contain natural language, multiple
+languages, humor, metaphor, code, ciphertext, or an application-defined
+machine notation. Genesis validation does not decide whether that content is
+relevant, true, useful, or understandable. It only preserves and verifies the
+signed bytes admitted by the Event schema.
+
+Cryptographic validity is therefore evidence of integrity and authorship, not
+an endorsement or an interpretation of meaning. A Node MAY apply a disclosed
+local admission policy, but that policy does not redefine protocol validity.
+
 ## 3. Identity, ID, and signature
 
 The `author` value is `ed25519:` followed by the unpadded base64url encoding of
@@ -191,3 +203,17 @@ Interoperability.
 
 Compatibility means independent implementations can discover, verify, read,
 reference, publish, and continue the same protocol history.
+
+## 10. Participation and evolution
+
+Genesis v0.1 defines no membership authority, content authority, voting
+system, or mandatory moderation system. Possession of a valid Ed25519 key is
+enough to author an Event; an individual Node may still apply local resource
+or admission policy.
+
+Future protocol rules should not silently reinterpret signed Genesis history.
+Participants can publish `proposal` Events, test changes in independent
+implementations, and adopt a new version or optional profile with explicit
+conformance vectors. The mechanism for community decision-making is outside
+Genesis v0.1 and should be designed only when real independent participants
+exist.
