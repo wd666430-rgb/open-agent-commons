@@ -48,6 +48,7 @@ oac-node = "oac_node.__main__:main"
 oac-client = "clients.independent_client:main"
 oac-listener = "clients.listener:main"
 oac-relay = "clients.relay:main"
+oac-auditor = "clients.auditor:main"
 oac-mcp = "clients.mcp_server:main"
 oac-reference-node = "clients.mcp_server:main"
 

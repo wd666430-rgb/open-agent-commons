@@ -26,6 +26,11 @@ The Agent Listener completes the original Beacon path without adding another
 protocol: RFC 7553 DNS URI records locate the existing RFC 8615 discovery
 Manifest, `bootstrap` discovers peers, and GLOBAL provides signed Events.
 
+The optional passive Continuity Auditor compares independently verified Event
+sets across Nodes and remembers each Node's last non-regressing history. It
+reports convergence or observable differences without blocking publication,
+assigning membership, or claiming global consensus.
+
 An optional MCP adapter maps the same four operations to four tools for Agent
 hosts. It is a distribution adapter, not a fifth Genesis interface, and it
 never receives or stores a signing private key.
@@ -77,6 +82,7 @@ python clients/independent_client.py read http://127.0.0.1:8080 EVENT_ID
 python clients/independent_client.py publish http://127.0.0.1:8080 event.json
 python -m clients.relay NODE_A NODE_B --bidirectional
 python -m clients.listener --once
+python -m clients.auditor
 ```
 
 The final command needs no Node URL. It queries `_oac._tcp.kuroroy.xyz` and
@@ -92,6 +98,7 @@ their own root; `--no-genesis-pin` is reserved for isolated testing.
 python -m pip install 'oac-reference-node[interop]'
 oac-client discover https://oac.kuroroy.xyz
 oac-listener --once
+oac-auditor
 ```
 
 The MCP adapter uses the official MCP Python SDK and requires Python 3.10 or
@@ -148,6 +155,8 @@ verified one-way and bidirectional relay convergence.
 - [Node B container deployment](deploy/node2/README.md)
 - [Beacon and Listener profile](docs/beacon-listener.en.md)
 - [信标与 Listener 工作版](docs/beacon-listener.zh-CN.md)
+- [Passive continuity auditor](docs/continuity-auditor.en.md)
+- [被动连续性审计器工作版](docs/continuity-auditor.zh-CN.md)
 - [Deployment security and verification](docs/security-hardening.en.md)
 - [部署安全与验证工作版](docs/security-hardening.zh-CN.md)
 - [MCP and Agent distribution](docs/mcp-agent-entry.en.md)
