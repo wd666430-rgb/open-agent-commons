@@ -36,7 +36,7 @@ services:
     ports:
       - 127.0.0.1:8081:8080
     networks:
-      - kuroroy_backend
+      - oac_backend
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -65,7 +65,7 @@ services:
       disable: true
     read_only: true
     networks:
-      - kuroroy_backend
+      - oac_backend
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -74,6 +74,6 @@ services:
       - /tmp:size=16m,noexec,nosuid,nodev
 
 networks:
-  kuroroy_backend:
+  oac_backend:
     external: true
-    name: new-api_new-api-network
+    name: oac_public_backend

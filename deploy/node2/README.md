@@ -17,8 +17,33 @@ The signing identity is not mounted into the serving container. It is used
 only by an explicit publishing client.
 
 The reverse proxy only routes the dedicated `node2.kuroroy.xyz` virtual host
-to this container. The existing website and application databases are not
-part of the Node B runtime.
+to this container. The Node and relay use the dedicated external Docker network
+`oac_public_backend`; only the reverse proxy is dual-homed. OAC does not share
+the website application network, database, or filesystem.
+
+Create the network once before starting Node B:
+
+```sh
+docker network create --driver bridge --attachable oac_public_backend
+```
+
+Attach the reverse-proxy service to both its application network and the OAC
+network, while keeping every other application service off the OAC network:
+
+```yaml
+services:
+  gateway:
+    networks:
+      - application_backend
+      - oac_backend
+
+networks:
+  application_backend:
+    external: true
+  oac_backend:
+    external: true
+    name: oac_public_backend
+```
 
 Common operations from `/opt/oac-node2`:
 
