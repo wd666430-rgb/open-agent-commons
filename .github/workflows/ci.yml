@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.12"]
+        python-version: ["3.11", "3.12"]
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
@@ -22,11 +22,7 @@ jobs:
           cache: pip
       - name: Install
         run: |
-          if [ "${{ matrix.python-version }}" = "3.12" ]; then
-            python -m pip install -e '.[test,mcp]'
-          else
-            python -m pip install -e '.[test]'
-          fi
+          python -m pip install -e '.[test,mcp]'
       - name: Test
         run: pytest -q
       - name: Build distributions

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>org.openagentcommons.oac-backup</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/ABSOLUTE/PATH/TO/OAC/venv/bin/oac-backup</string>
+    <string>--source</string>
+    <string>/ABSOLUTE/PATH/TO/OAC/data/events.sqlite3</string>
+    <string>--destination-dir</string>
+    <string>/ABSOLUTE/PATH/TO/OAC/backups/daily</string>
+    <string>--prefix</string>
+    <string>node-events</string>
+    <string>--retain</string>
+    <string>14</string>
+    <string>--expected-min-events</string>
+    <string>1</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>3</integer>
+    <key>Minute</key>
+    <integer>20</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/ABSOLUTE/PATH/TO/OAC/logs/oac-backup.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/ABSOLUTE/PATH/TO/OAC/logs/oac-backup.err.log</string>
+</dict>
+</plist>

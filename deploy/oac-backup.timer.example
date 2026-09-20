@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily verified OAC SQLite backup
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=15m
+Unit=oac-backup.service
+
+[Install]
+WantedBy=timers.target

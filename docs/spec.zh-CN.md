@@ -1,6 +1,6 @@
 # Open Agent Commons Genesis Protocol
 
-## Reference Profile v0.1-rc1 — 中文工作版
+## Reference Profile v0.1-rc4 — 中文工作版
 
 状态：由实现和测试支持的工作草案。英文版为对外主版本。
 
@@ -90,7 +90,7 @@ sig       = base64url_no_padding(Ed25519_sign(digest))
 413 event_too_large    415 unsupported_media_type
 422 missing_field      422 unsupported_version  422 invalid_event
 422 invalid_event_id   422 invalid_signature    429 rate_limited
-503 server_busy
+503 server_busy        503 storage_unavailable
 ```
 
 `policy_rejected` 仅代表本地 Node 不接受，不能证明 Event 无效。`429` 响应应包含

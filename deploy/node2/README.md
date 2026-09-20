@@ -61,8 +61,25 @@ docker compose restart
 curl http://127.0.0.1:8081/.well-known/oac.json
 ```
 
-Back up `data/events.sqlite3` and `secrets/node2-identity.json` separately.
-The identity file is private and must never be included in a release archive.
+Install `deploy/oac-backup.service.example` and
+`deploy/oac-backup.timer.example` as systemd units. The timer creates a daily
+verified online SQLite snapshot, keeps 14 copies, and uses an isolated
+network-less container. Run the service once after installation and verify its
+latest snapshot with `oac-backup --verify-only`. Back up
+`data/events.sqlite3` and `secrets/node2-identity.json` separately. A backup on
+the same server is not an off-device identity backup. The identity file is
+private and must never be included in a release archive.
+
+For a restore drill, mount the backup directory read-only and provide a
+temporary filesystem because the container root is read-only:
+
+```sh
+docker run --rm --network none --read-only --user 0:0 \
+  --tmpfs /tmp:size=32m,noexec,nosuid,nodev \
+  --entrypoint oac-backup -v /opt/oac-node2/backups:/backups:ro \
+  oac-node2:0.1-rc4 --restore-drill /backups/BACKUP.sqlite3 \
+  --expected-min-events 1
+```
 
 Refresh the reverse-proxy allowlist from Cloudflare's official `ips-v4` and
 `ips-v6` endpoints whenever Cloudflare announces an address-range change, test

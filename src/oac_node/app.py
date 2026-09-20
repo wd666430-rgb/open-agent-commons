@@ -6,6 +6,7 @@ import base64
 import binascii
 import json
 import math
+import shutil
 import socket
 import threading
 import time
@@ -21,13 +22,15 @@ from .protocol import EVENT_ID_RE, ProtocolError, verify_event
 from .store import EventStore
 
 
-MAX_EVENT_BYTES = 1_048_576
+MAX_EVENT_BYTES = 65_536
 DEFAULT_PAGE_SIZE = 100
 MAX_PAGE_SIZE = 500
 DEFAULT_PUBLISH_LIMIT = 120
+DEFAULT_PUBLISH_BYTE_LIMIT = 8_388_608
 DEFAULT_PUBLISH_WINDOW_SECONDS = 3_600
 DEFAULT_REQUEST_TIMEOUT_SECONDS = 15.0
 DEFAULT_MAX_CONNECTIONS = 64
+DEFAULT_MIN_FREE_BYTES = 268_435_456
 
 
 def _unique_object(pairs: List[tuple]) -> Dict[str, Any]:
@@ -49,36 +52,47 @@ class NodeConfig:
     public_base_url: Optional[str] = None
     spec_url: str = "urn:oac:spec:genesis:0.1"
     spec_path: Optional[str] = None
-    release: str = "genesis-0.1-rc3"
+    release: str = "genesis-0.1-rc4"
     bootstrap: List[str] = field(default_factory=list)
     max_event_bytes: int = MAX_EVENT_BYTES
     publish_limit: int = DEFAULT_PUBLISH_LIMIT
+    publish_byte_limit: int = DEFAULT_PUBLISH_BYTE_LIMIT
     publish_window_seconds: int = DEFAULT_PUBLISH_WINDOW_SECONDS
     request_timeout_seconds: float = DEFAULT_REQUEST_TIMEOUT_SECONDS
     max_connections: int = DEFAULT_MAX_CONNECTIONS
+    min_free_bytes: int = DEFAULT_MIN_FREE_BYTES
 
 
 class SlidingWindowLimiter:
-    """Small process-local admission limit for newly accepted Events."""
+    """Process-local count and byte limits for newly accepted Events."""
 
-    def __init__(self, limit: int, window_seconds: int) -> None:
+    def __init__(self, limit: int, byte_limit: int, window_seconds: int) -> None:
         self.limit = limit
+        self.byte_limit = byte_limit
         self.window_seconds = window_seconds
-        self._accepted: Deque[float] = deque()
+        self._accepted: Deque[Tuple[float, int]] = deque()
+        self._accepted_bytes = 0
         self._lock = threading.Lock()
 
-    def acquire(self) -> Tuple[bool, int]:
-        if self.limit == 0:
+    def acquire(self, size: int) -> Tuple[bool, int]:
+        if self.limit == 0 and self.byte_limit == 0:
             return True, 0
         now = time.monotonic()
         cutoff = now - self.window_seconds
         with self._lock:
-            while self._accepted and self._accepted[0] <= cutoff:
-                self._accepted.popleft()
-            if len(self._accepted) >= self.limit:
-                retry_after = max(1, math.ceil(self._accepted[0] + self.window_seconds - now))
+            while self._accepted and self._accepted[0][0] <= cutoff:
+                _, expired_size = self._accepted.popleft()
+                self._accepted_bytes -= expired_size
+            count_exceeded = self.limit > 0 and len(self._accepted) >= self.limit
+            bytes_exceeded = (
+                self.byte_limit > 0 and self._accepted_bytes + size > self.byte_limit
+            )
+            if count_exceeded or bytes_exceeded:
+                oldest_time = self._accepted[0][0] if self._accepted else now
+                retry_after = max(1, math.ceil(oldest_time + self.window_seconds - now))
                 return False, retry_after
-            self._accepted.append(now)
+            self._accepted.append((now, size))
+            self._accepted_bytes += size
         return True, 0
 
 
@@ -107,6 +121,12 @@ class OACHTTPServer(ThreadingHTTPServer):
     def __init__(self, server_address: tuple, config: NodeConfig):
         if config.publish_limit < 0:
             raise ValueError("publish_limit must be zero or positive")
+        if config.publish_byte_limit < 0:
+            raise ValueError("publish_byte_limit must be zero or positive")
+        if config.max_event_bytes < 1:
+            raise ValueError("max_event_bytes must be positive")
+        if config.min_free_bytes < 0:
+            raise ValueError("min_free_bytes must be zero or positive")
         if config.publish_window_seconds < 1:
             raise ValueError("publish_window_seconds must be positive")
         if config.request_timeout_seconds <= 0:
@@ -116,7 +136,9 @@ class OACHTTPServer(ThreadingHTTPServer):
         self.config = config
         self.store = EventStore(config.database)
         self.publish_limiter = SlidingWindowLimiter(
-            config.publish_limit, config.publish_window_seconds
+            config.publish_limit,
+            config.publish_byte_limit,
+            config.publish_window_seconds,
         )
         self._connection_slots = threading.BoundedSemaphore(config.max_connections)
         self.request_queue_size = config.max_connections
@@ -379,7 +401,21 @@ class OACRequestHandler(BaseHTTPRequestHandler):
         if self.server.store.get(event["id"]) is not None:
             self._json(200, {"status": "known", "id": event["id"]})
             return
-        allowed, retry_after = self.server.publish_limiter.acquire()
+        database_parent = Path(self.server.store.path).resolve().parent
+        if (
+            self.server.config.min_free_bytes > 0
+            and shutil.disk_usage(database_parent).free < self.server.config.min_free_bytes
+        ):
+            self._error(
+                ProtocolError(
+                    "storage_unavailable",
+                    "Node storage reserve has been reached",
+                    503,
+                ),
+                {"Retry-After": "300"},
+            )
+            return
+        allowed, retry_after = self.server.publish_limiter.acquire(length)
         if not allowed:
             self._error(
                 ProtocolError("rate_limited", "Node publish limit reached", 429),

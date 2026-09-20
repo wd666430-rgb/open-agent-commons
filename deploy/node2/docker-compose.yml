@@ -1,6 +1,6 @@
 services:
   node:
-    image: oac-node2:0.1-rc3
+    image: oac-node2:0.1-rc4
     build:
       context: ../..
       dockerfile: deploy/node2/Dockerfile
@@ -14,7 +14,7 @@ services:
       - --port
       - "8080"
       - --release
-      - genesis-0.1-rc3
+      - genesis-0.1-rc4
       - --public-base-url
       - https://node2.kuroroy.xyz
       - --spec-url
@@ -25,12 +25,18 @@ services:
       - https://oac.kuroroy.xyz
       - --publish-limit
       - "120"
+      - --publish-byte-limit
+      - "8388608"
       - --publish-window
       - "3600"
       - --request-timeout
       - "15"
       - --max-connections
       - "64"
+      - --max-event-bytes
+      - "65536"
+      - --min-free-bytes
+      - "268435456"
     volumes:
       - ../../data:/data
     ports:
@@ -46,7 +52,7 @@ services:
       - /tmp:size=16m,noexec,nosuid,nodev
 
   relay:
-    image: oac-node2:0.1-rc3
+    image: oac-node2:0.1-rc4
     container_name: oac-node2-relay
     restart: unless-stopped
     entrypoint: ["python", "-m", "clients.relay"]

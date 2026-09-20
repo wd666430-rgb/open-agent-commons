@@ -71,7 +71,7 @@ def test_g01_discovery(node):
     assert all(isinstance(manifest[key], str) for key in ("oac", "release", "spec", "global", "events"))
     assert isinstance(manifest["bootstrap"], list)
     assert manifest["oac"] == "0.1"
-    assert manifest["release"] == "genesis-0.1-rc3"
+    assert manifest["release"] == "genesis-0.1-rc4"
     assert manifest["global"] == base_url + "/oac/global"
 
 
@@ -299,6 +299,33 @@ def test_publish_limit_preserves_idempotent_republish(tmp_path):
         assert error.value.code == 429
         assert error.value.headers["Retry-After"] == "60"
         assert json.load(error.value)["error"] == "rate_limited"
+
+
+def test_publish_byte_limit_preserves_idempotent_republish(tmp_path):
+    first = sign_event(BODY, SEED)
+    second = make_followup(first["id"], text="byte-limited second event")
+    first_size = len(json.dumps(first, separators=(",", ":")).encode())
+    with running_node(
+        tmp_path,
+        publish_limit=0,
+        publish_byte_limit=first_size,
+        publish_window_seconds=60,
+    ) as (_, base_url):
+        assert post(base_url, first)[0] == 201
+        assert post(base_url, first)[0] == 200
+        status, result = post(base_url, second)
+        assert (status, result["error"]) == (429, "rate_limited")
+
+
+def test_storage_reserve_rejects_only_new_events(tmp_path):
+    first = sign_event(BODY, SEED)
+    with running_node(tmp_path, min_free_bytes=0) as (server, base_url):
+        assert post(base_url, first)[0] == 201
+        server.config.min_free_bytes = 2**63
+        assert post(base_url, first)[0] == 200
+        second = make_followup(first["id"], text="storage reserve")
+        status, result = post(base_url, second)
+        assert (status, result["error"]) == (503, "storage_unavailable")
 
 
 def test_security_headers_and_machine_method_error(node):

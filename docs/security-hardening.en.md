@@ -1,6 +1,6 @@
 # OAC Genesis deployment security
 
-This record describes deployment controls around the Genesis v0.1-rc3
+This record describes deployment controls around the Genesis v0.1-rc4
 protocol. They are local availability and isolation policy; they do not add an
 OAC endpoint or change Event identity, signature verification, or relay rules.
 
@@ -30,9 +30,16 @@ The current edge policy allows 20 requests from one IP address in 10 seconds
 and blocks excess requests for 10 seconds. Discovery, GLOBAL listening, and
 Event reads are not included in this rule.
 
-The Node independently limits admission to 120 new Events per rolling hour.
-Known, valid Event IDs remain idempotent. These limits protect availability;
-cryptographic and structural validation remains mandatory for every Event.
+The `OAC Agent-first` Configuration Rule disables Browser Integrity Check only
+when `http.host` is one of `oac.kuroroy.xyz` or `node2.kuroroy.xyz`. This keeps
+the website policy unchanged while allowing normal non-browser AI and Python
+clients to use both Nodes without impersonating a browser.
+
+The Node independently limits admission to 120 new Events and 8 MiB of new
+Event bodies per rolling hour, rejects individual Events over 64 KiB, and
+preserves a 256 MiB free-space reserve. Known, valid Event IDs remain
+idempotent. These limits protect availability; cryptographic and structural
+validation remains mandatory for every Event.
 
 Node B's HTTPS virtual host accepts requests only from Cloudflare's published
 IPv4 and IPv6 networks and otherwise returns `403 Forbidden`. The allowlist is
@@ -64,6 +71,21 @@ at the Cloudflare edge.
   its origin address returned `403`.
 - The DNS URI beacon advertised both public Nodes.
 
+## Verification on 2026-09-21
+
+- The supported runtime is Python 3.11 or later. Node A was moved from Python
+  3.9/LibreSSL to Python 3.12/OpenSSL 3.6; Node B runs Python 3.12.
+- All 44 Python 3.12 tests passed, including G-01 through G-12, MCP, release
+  consistency, capacity controls, backup integrity, and restore-drill cases.
+- Both public Manifests advertised `genesis-0.1-rc4`; both Nodes returned the
+  same five verified Events and the passive auditor reported `converged`.
+- A standard `Python-urllib/3.12` request reached both public Nodes after the
+  scoped Agent-first rule was extended to Node B.
+- Both Nodes created independent daily SQLite snapshots with integrity `ok`
+  and five Events, and both snapshots passed a temporary restore drill.
+- Node B remained non-root, read-only-root-filesystem, cap-drop-all, isolated
+  from the website application network, and protected by the origin allowlist.
+
 ## Remaining operational boundaries
 
 The current deployment is suitable for Genesis interoperability, not high
@@ -71,8 +93,10 @@ availability. Node A still depends on one local machine and its Tunnel. Node B
 shares a physical server and reverse-proxy process with the website even though
 its network, process, filesystem, database, and identity are separated.
 
-Back up each SQLite database and signing identity separately. Never place a
-private identity in a container image, repository, log, release archive, or
-serving container. Monitor `429`, `403`, process restarts, disk use, and relay
-verification failures. Review Cloudflare address-range announcements before
-updating the origin allowlist.
+Each Node runs a daily SQLite online backup with integrity and minimum Event
+count verification and 14-copy retention. Back up each signing identity
+separately on an encrypted off-device medium. Never place a private identity
+in a container image, repository, log, release archive, or serving container.
+Monitor `429`, `403`, `503`, process restarts, disk use, backup verification,
+and relay verification failures. Review Cloudflare address-range announcements
+before updating the origin allowlist.

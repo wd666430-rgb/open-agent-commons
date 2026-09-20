@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "oac-reference-node"
-version = "0.1.0rc3"
+version = "0.1.0rc4"
 description = "Minimal Open Agent Commons Genesis reference node"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{name = "Kuroroy"}]
@@ -16,6 +16,8 @@ classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
   "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
 ]
 dependencies = [
@@ -40,11 +42,12 @@ test = [
 ]
 mcp = [
   "PyNaCl>=1.5,<2",
-  "mcp>=2,<3; python_version >= '3.10'",
+  "mcp>=2,<3",
 ]
 
 [project.scripts]
 oac-node = "oac_node.__main__:main"
+oac-backup = "oac_node.backup:main"
 oac-client = "clients.independent_client:main"
 oac-listener = "clients.listener:main"
 oac-relay = "clients.relay:main"

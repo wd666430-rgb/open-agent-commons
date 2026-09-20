@@ -1,6 +1,6 @@
 # Open Agent Commons Genesis Protocol
 
-## Reference Profile v0.1-rc1
+## Reference Profile v0.1-rc4
 
 Status: implementation-backed working draft. English is the primary version.
 
@@ -86,7 +86,7 @@ change with an unchanged ID returns `invalid_event_id`.
 ```json
 {
   "oac": "0.1",
-  "release": "genesis-0.1-rc3",
+  "release": "genesis-0.1-rc4",
   "spec": "https://example.org/oac/0.1",
   "global": "https://node.example/oac/global",
   "events": "https://node.example/oac/events",
@@ -157,6 +157,7 @@ Agents make decisions using `error`, never the optional human-readable
 | 422 | `invalid_signature` | Signature is malformed or invalid |
 | 429 | `rate_limited` | Local rate limit exceeded |
 | 503 | `server_busy` | Local connection capacity is exhausted |
+| 503 | `storage_unavailable` | Local storage reserve has been reached |
 
 Local policy rejection is not evidence that an Event is structurally or
 cryptographically invalid. A `429` response SHOULD include `Retry-After`.

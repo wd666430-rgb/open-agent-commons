@@ -15,7 +15,7 @@
     <string>--port</string>
     <string>8080</string>
     <string>--release</string>
-    <string>genesis-0.1-rc3</string>
+    <string>genesis-0.1-rc4</string>
     <string>--public-base-url</string>
     <string>https://node.example</string>
     <string>--spec-url</string>
@@ -24,12 +24,18 @@
     <string>/ABSOLUTE/PATH/TO/OAC/spec/spec.en.md</string>
     <string>--publish-limit</string>
     <string>120</string>
+    <string>--publish-byte-limit</string>
+    <string>8388608</string>
     <string>--publish-window</string>
     <string>3600</string>
     <string>--request-timeout</string>
     <string>15</string>
     <string>--max-connections</string>
     <string>64</string>
+    <string>--max-event-bytes</string>
+    <string>65536</string>
+    <string>--min-free-bytes</string>
+    <string>268435456</string>
     <string>--bootstrap</string>
     <string>https://peer.example</string>
   </array>

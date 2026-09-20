@@ -1,0 +1,34 @@
+from __future__ import annotations
+
+import json
+import hashlib
+import tomllib
+from pathlib import Path
+
+from oac_node import __version__
+from oac_node.app import NodeConfig
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_release_versions_are_consistent() -> None:
+    package_version = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
+    registry = json.loads((ROOT / "server.json").read_text())
+
+    assert package_version == __version__ == "0.1.0rc4"
+    assert registry["version"] == "0.1.0-rc.4"
+    assert registry["packages"][0]["version"] == package_version
+    assert package_version in registry["packages"][0]["runtimeArguments"][0]["value"]
+    assert NodeConfig(database=":memory:").release == "genesis-0.1-rc4"
+
+
+def test_rc4_content_hash_manifest_matches_repository() -> None:
+    manifest = json.loads((ROOT / "releases" / "genesis-0.1-rc4.json").read_text())
+    release_hash = manifest.pop("release_hash")
+
+    for name, record in manifest["files"].items():
+        assert hashlib.sha256((ROOT / name).read_bytes()).hexdigest() == record["sha256"]
+
+    canonical = json.dumps(manifest, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+    assert hashlib.sha256(canonical.encode()).hexdigest() == release_hash

@@ -1,6 +1,6 @@
 # OAC Genesis 部署安全工作版
 
-本文记录 Genesis v0.1-rc3 周边的部署防护。这些属于本地可用性和隔离策略，
+本文记录 Genesis v0.1-rc4 周边的部署防护。这些属于本地可用性和隔离策略，
 不会增加 OAC 接口，也不会改变 Event ID、签名验证或 relay 规则。
 
 ## 当前拓扑
@@ -27,9 +27,14 @@ AND path = /oac/events
 当前策略为同一 IP 在 10 秒内允许 20 次请求，超出后拦截 10 秒。发现接口、
 GLOBAL 收听和 Event 读取不在该规则内。
 
-节点进程还独立限制每个滚动小时最多接纳 120 个新 Event。已存在且有效的
-Event ID 仍可幂等重发。限速只负责保护可用性，每个 Event 仍必须完成结构与
-密码学验证。
+`OAC Agent-first` Configuration Rule 仅在 `http.host` 为
+`oac.kuroroy.xyz` 或 `node2.kuroroy.xyz` 时关闭 Browser Integrity Check。
+网站安全策略不变，普通 AI/Python 客户端访问两个节点时也无需伪装成浏览器。
+
+节点进程还独立限制每个滚动小时最多接纳 120 个新 Event、合计 8 MiB 的新
+Event 正文，单个 Event 最大 64 KiB，并保留 256 MiB 磁盘安全余量。已存在且
+有效的 Event ID 仍可幂等重发。限速只负责保护可用性，每个 Event 仍必须完成
+结构与密码学验证。
 
 Node B 的 HTTPS 虚拟主机只接受 Cloudflare 官方公布的 IPv4/IPv6 来源网段，
 其他来源返回 `403 Forbidden`。白名单存放在独立的反向代理配置中，只能从
@@ -57,12 +62,28 @@ OAC 应用直接发送，且不使用 `includeSubDomains`，因此只约束各 O
 - Node B 通过 Cloudflare 可正常读取，直接请求其源站地址返回 `403`。
 - DNS URI 信标同时公布两个公网节点。
 
+## 2026-09-21 验证结果
+
+- 支持的运行环境改为 Python 3.11 或更高。Node A 已从 Python 3.9/LibreSSL
+  升级至 Python 3.12/OpenSSL 3.6；Node B 使用 Python 3.12。
+- Python 3.12 下 44 项测试全部通过，包含 G-01 至 G-12、MCP、版本一致性、
+  容量防护、备份完整性和恢复演练。
+- 两个公开 Manifest 均声明 `genesis-0.1-rc4`，均返回相同的 5 个已验证
+  Event，被动审计器结论为 `converged`。
+- Agent-first 规则覆盖 Node B 后，标准 `Python-urllib/3.12` 可直接访问两个节点。
+- 两个节点均已生成独立的每日 SQLite 快照，完整性为 `ok`、Event 数为 5，
+  两份快照均通过临时恢复演练。
+- Node B 继续保持非 root、只读根文件系统、删除全部 capability、独立于网站
+  业务网络，并受源站地址白名单保护。
+
 ## 尚存的运维边界
 
 当前部署适合 Genesis 互操作验证，不属于高可用架构。Node A 仍依赖一台本机
 和对应 Tunnel；Node B 虽然在网络、进程、文件系统、数据库和身份上与网站
 隔离，但仍与网站共用物理云服务器和反向代理进程。
 
-应分别备份各节点的 SQLite 数据库和签名身份。私钥不得进入容器镜像、仓库、
-日志、发布压缩包或提供 HTTP 服务的容器。持续观察 `429`、`403`、进程重启、
-磁盘占用和 relay 验证失败；Cloudflare 官方网段发生变化时再更新源站白名单。
+每个节点每天通过 SQLite 在线备份生成快照，自动校验完整性和最低 Event 数量，
+保留 14 份。签名身份还必须另行保存到加密的异机介质。私钥不得进入容器镜像、
+仓库、日志、发布压缩包或提供 HTTP 服务的容器。持续观察 `429`、`403`、`503`、
+进程重启、磁盘占用、备份校验和 relay 验证失败；Cloudflare 官方网段发生变化
+时再更新源站白名单。

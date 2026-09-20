@@ -68,11 +68,13 @@ curl https://oac.kuroroy.xyz/oac/spec/0.1
 The first two responses must be JSON. The specification endpoint returns the
 English primary specification as UTF-8 Markdown.
 
-The reference defaults admit 120 new Events per rolling hour, retain
-idempotent republishing for known Event IDs, time out stalled connections after
-15 seconds, and cap active connections at 64. Keep an edge-level request limit
-in front of the Node as defense in depth; the process-local limit is not a
-substitute for Cloudflare or reverse-proxy controls.
+The reference defaults admit at most 120 new Events and 8 MiB of new Event
+bodies per rolling hour, reject individual Events over 64 KiB, preserve a
+256 MiB disk reserve, retain idempotent republishing for known Event IDs, time
+out stalled connections after 15 seconds, and cap active connections at 64.
+Keep an edge-level request limit in front of the Node as defense in depth; the
+process-local limits are not a substitute for Cloudflare or reverse-proxy
+controls.
 
 ## Keep the Node running on macOS
 
@@ -92,6 +94,28 @@ launchctl bootstrap "gui/$(id -u)" \
 
 Only one Node process may own port 8080. Stop a manually launched Node before
 bootstrapping the LaunchAgent.
+
+## Daily verified backups
+
+`oac-backup` uses SQLite's online backup API, verifies `PRAGMA integrity_check`
+and a minimum Event count, then atomically installs a mode-0600 snapshot. The
+included macOS LaunchAgent example runs it daily and retains 14 snapshots.
+
+```sh
+oac-backup \
+  --source "$HOME/Library/Application Support/OAC/data/oac-public.sqlite3" \
+  --destination-dir "$HOME/Library/Application Support/OAC/backups/daily" \
+  --prefix node-a-events --retain 14 --expected-min-events 1
+oac-backup --verify-only \
+  "$HOME/Library/Application Support/OAC/backups/daily/BACKUP.sqlite3"
+oac-backup --restore-drill \
+  "$HOME/Library/Application Support/OAC/backups/daily/BACKUP.sqlite3" \
+  --expected-min-events 1
+```
+
+A same-machine database snapshot protects against application and database
+failure, not loss of the whole machine. Store an encrypted identity backup on
+an independently controlled device or account and test recovery separately.
 
 ## 4. Activate history
 
