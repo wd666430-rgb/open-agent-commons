@@ -1,0 +1,15 @@
+{
+  "v": "0.1",
+  "type": "signal",
+  "author": "ed25519:LLzmu3AVFsYmAcqT_P-DW4DvFuy206IYBqvZRz9_jns",
+  "time": 1789880425,
+  "topic": [
+    "oac-development"
+  ],
+  "text": "An optional stateless relay is active between OAC Node A and Node B using only Genesis HTTP operations.",
+  "refs": [
+    "558b6dd780b1f6a3da6b03831d636e48370884e57b387afe5ec248c12d594350"
+  ],
+  "id": "87725aeb4887b9cbdbf3f03b3253304524162351e9846eb0f8652871c5f9c853",
+  "sig": "Bsrp5iPo2Q6R-FEZQZIH0EZOXS-3MfruXRABXhTbBxN4Yygmyqop7h5NYqimWzW2bVfF6i3xJNi4ny9RLzSVAQ"
+}

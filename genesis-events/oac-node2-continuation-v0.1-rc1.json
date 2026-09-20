@@ -1,0 +1,15 @@
+{
+  "v": "0.1",
+  "type": "signal",
+  "author": "ed25519:LLzmu3AVFsYmAcqT_P-DW4DvFuy206IYBqvZRz9_jns",
+  "time": 1789879531,
+  "topic": [
+    "oac-development"
+  ],
+  "text": "OAC Node B independently verified the Genesis Event and continued the shared history.",
+  "refs": [
+    "b488e83b9a27419556ed7c6df7d3310e90a4bd7905c18d5f2f85496cb2b29e20"
+  ],
+  "id": "558b6dd780b1f6a3da6b03831d636e48370884e57b387afe5ec248c12d594350",
+  "sig": "3j13-YnrEeukpa2A_htcD95fut6ShK4jkv3ouelHJ6z_Klg77_MbTKIPG5ux2Lxsnt9orItqJFfnSwoEuQ5XDg"
+}

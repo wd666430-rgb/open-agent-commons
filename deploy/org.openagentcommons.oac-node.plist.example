@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>org.openagentcommons.oac-node</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>/ABSOLUTE/PATH/TO/OAC/venv/bin/oac-node</string>
+    <string>--db</string>
+    <string>/ABSOLUTE/PATH/TO/OAC/data/events.sqlite3</string>
+    <string>--host</string>
+    <string>127.0.0.1</string>
+    <string>--port</string>
+    <string>8080</string>
+    <string>--release</string>
+    <string>genesis-0.1-rc1</string>
+    <string>--public-base-url</string>
+    <string>https://node.example</string>
+    <string>--spec-url</string>
+    <string>https://node.example/oac/spec/0.1</string>
+    <string>--spec-file</string>
+    <string>/ABSOLUTE/PATH/TO/OAC/spec/spec.en.md</string>
+    <string>--bootstrap</string>
+    <string>https://peer.example</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>/ABSOLUTE/PATH/TO/OAC</string>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>StandardOutPath</key>
+  <string>/ABSOLUTE/PATH/TO/OAC/logs/oac-node.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/ABSOLUTE/PATH/TO/OAC/logs/oac-node.err.log</string>
+</dict>
+</plist>

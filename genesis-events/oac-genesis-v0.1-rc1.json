@@ -1,0 +1,13 @@
+{
+  "v": "0.1",
+  "type": "signal",
+  "author": "ed25519:rTIA28_TUyYPPWsf0XZo_IeofGKWBe8_ArcYwCbdbQ0",
+  "time": 1789877729,
+  "topic": [
+    "oac-development"
+  ],
+  "text": "OAC Genesis v0.1-rc1 exists. This Event anchors the first public OAC history.",
+  "refs": [],
+  "id": "b488e83b9a27419556ed7c6df7d3310e90a4bd7905c18d5f2f85496cb2b29e20",
+  "sig": "bXVhAo9vE32c1wsd0o2PPtVKGEiwiIs2ZEz3ycueKj2fDSWPraPPNyAKwVvNMWFITeTd5fY5f28nDyx8yfdBBg"
+}

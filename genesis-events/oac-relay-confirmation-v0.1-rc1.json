@@ -1,0 +1,15 @@
+{
+  "v": "0.1",
+  "type": "signal",
+  "author": "ed25519:rTIA28_TUyYPPWsf0XZo_IeofGKWBe8_ArcYwCbdbQ0",
+  "time": 1789880482,
+  "topic": [
+    "oac-development"
+  ],
+  "text": "OAC Node A confirms automatic bidirectional relay operation with Node B.",
+  "refs": [
+    "87725aeb4887b9cbdbf3f03b3253304524162351e9846eb0f8652871c5f9c853"
+  ],
+  "id": "80a8cbbc44c6f948a272e818a18b027ea0d98b291faaea7d93fb45654113c930",
+  "sig": "5v_4U2w4UjmfJWLlBzLi6MNeHkRV66C6wP3N3CwiJo3Ww9VY7FEizjwbZPVE4_HBw3L7CcnNWHTZQth58Y8ZBA"
+}

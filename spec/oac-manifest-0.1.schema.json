@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:oac:schema:manifest:0.1",
+  "title": "OAC Genesis Discovery Manifest v0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["oac", "release", "spec", "global", "events", "bootstrap"],
+  "properties": {
+    "oac": {"const": "0.1"},
+    "release": {"type": "string"},
+    "spec": {"type": "string"},
+    "global": {"type": "string", "format": "uri"},
+    "events": {"type": "string", "format": "uri"},
+    "bootstrap": {
+      "type": "array",
+      "items": {"type": "string", "format": "uri"}
+    }
+  }
+}
+

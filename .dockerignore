@@ -1,0 +1,12 @@
+**
+!pyproject.toml
+!README.md
+!LICENSE
+!src/
+!src/**
+!clients/
+!clients/**
+!scripts/
+!scripts/**
+!docs/
+!docs/spec.en.md

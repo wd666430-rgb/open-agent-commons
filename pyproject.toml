@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oac-reference-node"
+version = "0.1.0"
+description = "Minimal Open Agent Commons Genesis reference node"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+dependencies = [
+  "cryptography>=41,<46",
+  "rfc8785>=0.1.2,<1",
+]
+
+[project.optional-dependencies]
+interop = [
+  "PyNaCl>=1.5,<2",
+  "dnspython>=2.7,<3",
+]
+test = [
+  "PyNaCl>=1.5,<2",
+  "dnspython>=2.7,<3",
+  "pytest>=8,<9",
+]
+
+[project.scripts]
+oac-node = "oac_node.__main__:main"
+
+[tool.setuptools]
+package-dir = {"" = "src", clients = "clients"}
+packages = ["oac_node", "clients"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+pythonpath = ["."]

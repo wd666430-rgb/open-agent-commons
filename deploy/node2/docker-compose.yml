@@ -1,0 +1,66 @@
+services:
+  node:
+    image: oac-node2:0.1-rc1
+    build:
+      context: ../..
+      dockerfile: deploy/node2/Dockerfile
+    container_name: oac-node2
+    restart: unless-stopped
+    command:
+      - --db
+      - /data/events.sqlite3
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - --release
+      - genesis-0.1-rc1
+      - --public-base-url
+      - https://node2.kuroroy.xyz
+      - --spec-url
+      - https://node2.kuroroy.xyz/oac/spec/0.1
+      - --spec-file
+      - /app/spec.en.md
+      - --bootstrap
+      - https://oac.kuroroy.xyz
+    volumes:
+      - ../../data:/data
+    ports:
+      - 127.0.0.1:8081:8080
+    networks:
+      - kuroroy_backend
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  relay:
+    image: oac-node2:0.1-rc1
+    container_name: oac-node2-relay
+    restart: unless-stopped
+    entrypoint: ["python", "-m", "clients.relay"]
+    command:
+      - https://oac.kuroroy.xyz
+      - http://node:8080
+      - --bidirectional
+      - --page-size
+      - "100"
+      - --interval
+      - "60"
+    depends_on:
+      node:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+    read_only: true
+    networks:
+      - kuroroy_backend
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+networks:
+  kuroroy_backend:
+    external: true
+    name: new-api_new-api-network

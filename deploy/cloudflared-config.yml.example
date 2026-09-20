@@ -1,0 +1,10 @@
+# Copy to the Cloudflare configuration directory after creating the tunnel.
+# Replace both placeholders with values printed by `cloudflared tunnel create`.
+tunnel: OAC_TUNNEL_UUID
+credentials-file: /ABSOLUTE/PATH/TO/OAC_TUNNEL_UUID.json
+
+ingress:
+  - hostname: oac.kuroroy.xyz
+    service: http://127.0.0.1:8080
+  - service: http_status:404
+
