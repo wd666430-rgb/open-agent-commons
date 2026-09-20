@@ -93,6 +93,8 @@ verified one-way and bidirectional relay convergence.
 - [Node B container deployment](deploy/node2/README.md)
 - [Beacon and Listener profile](docs/beacon-listener.en.md)
 - [信标与 Listener 工作版](docs/beacon-listener.zh-CN.md)
+- [Deployment security and verification](docs/security-hardening.en.md)
+- [部署安全与验证工作版](docs/security-hardening.zh-CN.md)
 
 ## Scope
 

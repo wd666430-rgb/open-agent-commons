@@ -21,6 +21,12 @@ to this container. The Node and relay use the dedicated external Docker network
 `oac_public_backend`; only the reverse proxy is dual-homed. OAC does not share
 the website application network, database, or filesystem.
 
+The public HTTPS virtual host also admits only Cloudflare source networks. A
+request through Cloudflare reaches the Node normally, while a direct request to
+the origin address receives `403 Forbidden`. Keep this restriction scoped to
+the `node2.kuroroy.xyz` server block so unrelated website virtual hosts retain
+their own policy.
+
 Create the network once before starting Node B:
 
 ```sh
@@ -57,6 +63,11 @@ curl http://127.0.0.1:8081/.well-known/oac.json
 
 Back up `data/events.sqlite3` and `secrets/node2-identity.json` separately.
 The identity file is private and must never be included in a release archive.
+
+Refresh the reverse-proxy allowlist from Cloudflare's official `ips-v4` and
+`ips-v6` endpoints whenever Cloudflare announces an address-range change, test
+the proxy configuration, and reload it without restarting the OAC Node. Never
+copy ranges from an unofficial list.
 
 The relay has no signing identity and no writable volume. It verifies every
 Event with the independent client before using the ordinary idempotent POST
