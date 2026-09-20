@@ -134,6 +134,7 @@ class OACHTTPServer(ThreadingHTTPServer):
                 + b"X-Content-Type-Options: nosniff\r\n"
                 + b"X-Frame-Options: DENY\r\n"
                 + b"Referrer-Policy: no-referrer\r\n"
+                + b"Strict-Transport-Security: max-age=31536000\r\n"
                 + b"Connection: close\r\n\r\n"
                 + payload
             )
@@ -173,6 +174,9 @@ class OACRequestHandler(BaseHTTPRequestHandler):
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("X-Frame-Options", "DENY")
         self.send_header("Referrer-Policy", "no-referrer")
+        # Browsers ignore HSTS over plain HTTP. Emitting it here keeps the
+        # policy scoped to the OAC hostname behind the HTTPS proxy or Tunnel.
+        self.send_header("Strict-Transport-Security", "max-age=31536000")
         super().end_headers()
 
     def log_message(self, fmt: str, *args: Any) -> None:

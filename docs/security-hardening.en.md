@@ -1,6 +1,6 @@
 # OAC Genesis deployment security
 
-This record describes deployment controls around the Genesis v0.1-rc2
+This record describes deployment controls around the Genesis v0.1-rc3
 protocol. They are local availability and isolation policy; they do not add an
 OAC endpoint or change Event identity, signature verification, or relay rules.
 
@@ -43,11 +43,20 @@ https://www.cloudflare.com/ips-v4
 https://www.cloudflare.com/ips-v6
 ```
 
+Every Node response publishes `Strict-Transport-Security: max-age=31536000`.
+The policy is deliberately emitted by the OAC application without
+`includeSubDomains`, keeping it scoped to each OAC hostname instead of changing
+unrelated services under the parent domain. Plain HTTP is redirected to HTTPS
+at the Cloudflare edge.
+
 ## Verification on 2026-09-20
 
-- All 28 local tests passed, including normative G-01 through G-12.
+- All 29 available local tests passed, including normative G-01 through G-12;
+  the optional MCP SDK test is exercised by the Python 3.12 CI job.
 - Both public discovery and GLOBAL interfaces returned JSON with HTTP 200.
 - Both public Nodes contained the same four verified Events.
+- Both public Manifests advertised `genesis-0.1-rc3`, and both HTTPS responses
+  included the Node-scoped HSTS policy.
 - A 36-request invalid-publication burst produced 22 validation responses
   (`422`) followed by 14 edge-limit responses (`429`). No Event was stored.
 - Node B remained readable through Cloudflare, while a direct TLS request to

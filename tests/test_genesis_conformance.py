@@ -307,6 +307,7 @@ def test_security_headers_and_machine_method_error(node):
         assert response.headers["X-Content-Type-Options"] == "nosniff"
         assert response.headers["X-Frame-Options"] == "DENY"
         assert response.headers["Referrer-Policy"] == "no-referrer"
+        assert response.headers["Strict-Transport-Security"] == "max-age=31536000"
         assert response.headers["Server"] == "OAC"
 
     request = Request(base_url + "/oac/events", method="DELETE")

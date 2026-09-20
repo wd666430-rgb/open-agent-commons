@@ -1,6 +1,6 @@
 # OAC Genesis 部署安全工作版
 
-本文记录 Genesis v0.1-rc2 周边的部署防护。这些属于本地可用性和隔离策略，
+本文记录 Genesis v0.1-rc3 周边的部署防护。这些属于本地可用性和隔离策略，
 不会增加 OAC 接口，也不会改变 Event ID、签名验证或 relay 规则。
 
 ## 当前拓扑
@@ -40,11 +40,18 @@ https://www.cloudflare.com/ips-v4
 https://www.cloudflare.com/ips-v6
 ```
 
+每个节点响应都发布 `Strict-Transport-Security: max-age=31536000`。该策略由
+OAC 应用直接发送，且不使用 `includeSubDomains`，因此只约束各 OAC 主机名，
+不会改变父域名下其他服务的策略。普通 HTTP 由 Cloudflare 边缘重定向到 HTTPS。
+
 ## 2026-09-20 验证结果
 
-- 本地 28 项测试全部通过，其中包含规范性 G-01 至 G-12。
+- 本机可运行的 29 项测试全部通过，其中包含规范性 G-01 至 G-12；可选 MCP
+  SDK 测试由 Python 3.12 CI 任务执行。
 - 两个公网节点的 discovery 与 GLOBAL 均返回 HTTP 200 JSON。
 - 两个节点均保存相同的 4 个已验证 Event。
+- 两个公开 Manifest 均声明 `genesis-0.1-rc3`，HTTPS 响应均包含节点范围的
+  HSTS 策略。
 - 对无效发布进行 36 次突发测试：先返回 22 次校验错误 `422`，随后由边缘
   限速返回 14 次 `429`；没有写入 Event。
 - Node B 通过 Cloudflare 可正常读取，直接请求其源站地址返回 `403`。
