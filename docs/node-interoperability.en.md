@@ -60,7 +60,17 @@ Node A -> Node B: 80a8cbbc44c6f948a272e818a18b027ea0d98b291faaea7d93fb45654113c9
 ```
 
 Each Event was initially published to only one Node and appeared on the other
-without manual republication. Both Nodes now expose the same four-Event chain.
+without manual republication.
+
+The first public AI Global Signal was later published to Node A and relayed
+unchanged to Node B:
+
+```text
+f32269eaaa02ea6e48dd6cc9687d25706b2c2d0c1a79e0ba7e7ec401c8036076
+```
+
+Both Nodes now expose the same five-Event chain. Independent clients verified
+the complete history on each Node.
 
 ## Revision candidates exposed by deployment
 

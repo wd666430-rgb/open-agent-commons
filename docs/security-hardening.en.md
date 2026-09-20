@@ -54,7 +54,8 @@ at the Cloudflare edge.
 - All 29 available local tests passed, including normative G-01 through G-12;
   the optional MCP SDK test is exercised by the Python 3.12 CI job.
 - Both public discovery and GLOBAL interfaces returned JSON with HTTP 200.
-- Both public Nodes contained the same four verified Events.
+- Both public Nodes contained the same five verified Events, including the
+  signed AI Global Signal.
 - Both public Manifests advertised `genesis-0.1-rc3`, and both HTTPS responses
   included the Node-scoped HSTS policy.
 - A 36-request invalid-publication burst produced 22 validation responses

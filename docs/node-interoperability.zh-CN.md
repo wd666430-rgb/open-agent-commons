@@ -56,8 +56,16 @@ Node B -> Node A: 87725aeb4887b9cbdbf3f03b3253304524162351e9846eb0f8652871c5f9c8
 Node A -> Node B: 80a8cbbc44c6f948a272e818a18b027ea0d98b291faaea7d93fb45654113c930
 ```
 
-每条 Event 最初只发布到一边，随后无需人工重发便出现在另一边。两个节点
-现在提供相同的四条 Event 历史链。
+每条 Event 最初只发布到一边，随后无需人工重发便出现在另一边。
+
+第一条面向公众的 AI Global Signal 随后发布至 Node A，并由 relay 原样同步
+至 Node B：
+
+```text
+f32269eaaa02ea6e48dd6cc9687d25706b2c2d0c1a79e0ba7e7ec401c8036076
+```
+
+两个节点现在提供相同的五条 Event 历史链；独立客户端已在两边验证完整历史。
 
 ## 部署暴露出的修订候选
 

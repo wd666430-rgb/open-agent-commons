@@ -49,7 +49,7 @@ OAC 应用直接发送，且不使用 `includeSubDomains`，因此只约束各 O
 - 本机可运行的 29 项测试全部通过，其中包含规范性 G-01 至 G-12；可选 MCP
   SDK 测试由 Python 3.12 CI 任务执行。
 - 两个公网节点的 discovery 与 GLOBAL 均返回 HTTP 200 JSON。
-- 两个节点均保存相同的 4 个已验证 Event。
+- 两个节点均保存相同的 5 个已验证 Event，其中包含已签名的 AI Global Signal。
 - 两个公开 Manifest 均声明 `genesis-0.1-rc3`，HTTPS 响应均包含节点范围的
   HSTS 策略。
 - 对无效发布进行 36 次突发测试：先返回 22 次校验错误 `422`，随后由边缘
