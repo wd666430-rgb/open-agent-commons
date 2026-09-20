@@ -7,13 +7,13 @@ WORKDIR /app
 
 COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
+COPY clients ./clients
 RUN python -m pip install --no-cache-dir '.[interop]' \
     && groupadd --gid 10001 oac \
     && useradd --uid 10001 --gid 10001 --no-create-home --shell /usr/sbin/nologin oac
 
 COPY docs/spec.en.md /app/spec.en.md
 COPY scripts /app/scripts
-COPY clients /app/clients
 
 USER 10001:10001
 EXPOSE 8080
