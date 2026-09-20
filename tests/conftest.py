@@ -13,15 +13,17 @@ from oac_node.app import NodeConfig, create_server
 
 
 @contextmanager
-def running_node(tmp_path):
+def running_node(tmp_path, **config_overrides):
+    config_values = {
+        "database": str(tmp_path / "events.sqlite3"),
+        "spec_url": "https://spec.example/oac/0.1",
+        "spec_path": str(Path(__file__).resolve().parents[1] / "docs" / "spec.en.md"),
+    }
+    config_values.update(config_overrides)
     server = create_server(
         "127.0.0.1",
         0,
-        NodeConfig(
-            database=str(tmp_path / "events.sqlite3"),
-            spec_url="https://spec.example/oac/0.1",
-            spec_path=str(Path(__file__).resolve().parents[1] / "docs" / "spec.en.md"),
-        ),
+        NodeConfig(**config_values),
     )
     thread = threading.Thread(target=server.serve_forever, daemon=True)
     thread.start()

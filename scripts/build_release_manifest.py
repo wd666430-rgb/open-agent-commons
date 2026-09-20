@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the content-hash manifest for the Genesis v0.1-rc1 candidate."""
+"""Build the content-hash manifest for the current Genesis candidate."""
 
 from __future__ import annotations
 
@@ -9,7 +9,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "releases" / "genesis-0.1-rc1.json"
+RELEASE = "genesis-0.1-rc2"
+PARENT = "ba66555febf2941384c57c0d59f30f1f1210e4e6e1c132bb276c79e96dbe65b8"
+OUTPUT = ROOT / "releases" / f"{RELEASE}.json"
 FILES = [
     "docs/spec.en.md",
     "docs/spec.zh-CN.md",
@@ -26,9 +28,9 @@ def sha256(path: Path) -> str:
 
 def main() -> None:
     payload = {
-        "release": "genesis-0.1-rc1",
+        "release": RELEASE,
         "protocol": "oac/0.1",
-        "parent": None,
+        "parent": PARENT,
         "public_node": "https://oac.kuroroy.xyz",
         "files": {name: {"sha256": sha256(ROOT / name)} for name in FILES},
     }
@@ -41,4 +43,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

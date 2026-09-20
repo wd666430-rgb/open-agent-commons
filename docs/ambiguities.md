@@ -33,6 +33,15 @@ accepted or revised before the protocol is declared final.
 11. **JCS input domain.** Duplicate JSON object names, non-finite numbers, and
     lone Unicode surrogates are rejected. Integers are limited to the exact
     interoperable range 0 through 2^53-1.
+12. **Operational admission policy.** A reference Node admits at most 120 new
+    Events per rolling hour by default. Known Event IDs remain idempotently
+    publishable without consuming the limit. `429 rate_limited` includes
+    `Retry-After`. Operators may change or disable this local policy; it is not
+    part of Event identity or cross-Node validation.
+13. **Transport hardening.** The reference server applies a 15-second socket
+    timeout and a 64-connection process-local ceiling by default. A saturated
+    Node returns `503 server_busy` when possible. These are local availability
+    controls, not protocol consensus rules.
 
 ## Still open for a later revision
 

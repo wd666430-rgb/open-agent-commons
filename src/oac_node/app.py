@@ -5,11 +5,16 @@ from __future__ import annotations
 import base64
 import binascii
 import json
+import math
+import socket
+import threading
+import time
+from collections import deque
 from html import escape
 from dataclasses import dataclass, field
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Deque, Dict, List, Optional, Tuple
 from urllib.parse import parse_qs, unquote, urlsplit
 
 from .protocol import EVENT_ID_RE, ProtocolError, verify_event
@@ -19,6 +24,10 @@ from .store import EventStore
 MAX_EVENT_BYTES = 1_048_576
 DEFAULT_PAGE_SIZE = 100
 MAX_PAGE_SIZE = 500
+DEFAULT_PUBLISH_LIMIT = 120
+DEFAULT_PUBLISH_WINDOW_SECONDS = 3_600
+DEFAULT_REQUEST_TIMEOUT_SECONDS = 15.0
+DEFAULT_MAX_CONNECTIONS = 64
 
 
 def _unique_object(pairs: List[tuple]) -> Dict[str, Any]:
@@ -40,9 +49,37 @@ class NodeConfig:
     public_base_url: Optional[str] = None
     spec_url: str = "urn:oac:spec:genesis:0.1"
     spec_path: Optional[str] = None
-    release: str = "genesis-0.1-rc1"
+    release: str = "genesis-0.1-rc2"
     bootstrap: List[str] = field(default_factory=list)
     max_event_bytes: int = MAX_EVENT_BYTES
+    publish_limit: int = DEFAULT_PUBLISH_LIMIT
+    publish_window_seconds: int = DEFAULT_PUBLISH_WINDOW_SECONDS
+    request_timeout_seconds: float = DEFAULT_REQUEST_TIMEOUT_SECONDS
+    max_connections: int = DEFAULT_MAX_CONNECTIONS
+
+
+class SlidingWindowLimiter:
+    """Small process-local admission limit for newly accepted Events."""
+
+    def __init__(self, limit: int, window_seconds: int) -> None:
+        self.limit = limit
+        self.window_seconds = window_seconds
+        self._accepted: Deque[float] = deque()
+        self._lock = threading.Lock()
+
+    def acquire(self) -> Tuple[bool, int]:
+        if self.limit == 0:
+            return True, 0
+        now = time.monotonic()
+        cutoff = now - self.window_seconds
+        with self._lock:
+            while self._accepted and self._accepted[0] <= cutoff:
+                self._accepted.popleft()
+            if len(self._accepted) >= self.limit:
+                retry_after = max(1, math.ceil(self._accepted[0] + self.window_seconds - now))
+                return False, retry_after
+            self._accepted.append(now)
+        return True, 0
 
 
 def _cursor_encode(seq: int) -> str:
@@ -64,35 +101,103 @@ def _cursor_decode(cursor: str) -> int:
 
 class OACHTTPServer(ThreadingHTTPServer):
     daemon_threads = True
+    allow_reuse_address = True
+    request_queue_size = DEFAULT_MAX_CONNECTIONS
 
     def __init__(self, server_address: tuple, config: NodeConfig):
+        if config.publish_limit < 0:
+            raise ValueError("publish_limit must be zero or positive")
+        if config.publish_window_seconds < 1:
+            raise ValueError("publish_window_seconds must be positive")
+        if config.request_timeout_seconds <= 0:
+            raise ValueError("request_timeout_seconds must be positive")
+        if config.max_connections < 1:
+            raise ValueError("max_connections must be positive")
         self.config = config
         self.store = EventStore(config.database)
+        self.publish_limiter = SlidingWindowLimiter(
+            config.publish_limit, config.publish_window_seconds
+        )
+        self._connection_slots = threading.BoundedSemaphore(config.max_connections)
+        self.request_queue_size = config.max_connections
         super().__init__(server_address, OACRequestHandler)
+
+    def process_request(self, request: socket.socket, client_address: tuple) -> None:
+        if not self._connection_slots.acquire(blocking=False):
+            payload = b'{"error":"server_busy","detail":"Node connection limit reached"}'
+            response = (
+                b"HTTP/1.1 503 Service Unavailable\r\n"
+                b"Content-Type: application/json; charset=utf-8\r\n"
+                + f"Content-Length: {len(payload)}\r\n".encode("ascii")
+                + b"Cache-Control: no-store\r\n"
+                + b"Retry-After: 1\r\n"
+                + b"X-Content-Type-Options: nosniff\r\n"
+                + b"X-Frame-Options: DENY\r\n"
+                + b"Referrer-Policy: no-referrer\r\n"
+                + b"Connection: close\r\n\r\n"
+                + payload
+            )
+            try:
+                request.sendall(response)
+            except OSError:
+                pass
+            self.shutdown_request(request)
+            return
+        try:
+            super().process_request(request, client_address)
+        except BaseException:
+            self._connection_slots.release()
+            raise
+
+    def process_request_thread(self, request: socket.socket, client_address: tuple) -> None:
+        try:
+            super().process_request_thread(request, client_address)
+        finally:
+            self._connection_slots.release()
 
 
 class OACRequestHandler(BaseHTTPRequestHandler):
     server: OACHTTPServer
     protocol_version = "HTTP/1.1"
+    server_version = "OAC"
+    sys_version = ""
+
+    def version_string(self) -> str:
+        return self.server_version
+
+    def setup(self) -> None:
+        super().setup()
+        self.connection.settimeout(self.server.config.request_timeout_seconds)
+
+    def end_headers(self) -> None:
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Referrer-Policy", "no-referrer")
+        super().end_headers()
 
     def log_message(self, fmt: str, *args: Any) -> None:
         # Retain the standard concise access log; no human UI is exposed.
         super().log_message(fmt, *args)
 
-    def _json(self, status: int, value: Dict[str, Any]) -> None:
+    def _json(
+        self, status: int, value: Dict[str, Any], headers: Optional[Dict[str, str]] = None
+    ) -> None:
         payload = json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(payload)))
         self.send_header("Cache-Control", "no-store")
+        for name, header_value in (headers or {}).items():
+            self.send_header(name, header_value)
         self.end_headers()
-        self.wfile.write(payload)
+        if self.command != "HEAD":
+            self.wfile.write(payload)
 
-    def _error(self, error: ProtocolError) -> None:
+    def _error(self, error: ProtocolError, headers: Optional[Dict[str, str]] = None) -> None:
         body = {"error": error.code}
         if error.detail:
             body["detail"] = error.detail
-        self._json(error.status, body)
+        self._json(error.status, body, headers)
 
     def _base_url(self) -> str:
         if self.server.config.public_base_url:
@@ -267,6 +372,16 @@ class OACRequestHandler(BaseHTTPRequestHandler):
         except ProtocolError as error:
             self._error(error)
             return
+        if self.server.store.get(event["id"]) is not None:
+            self._json(200, {"status": "known", "id": event["id"]})
+            return
+        allowed, retry_after = self.server.publish_limiter.acquire()
+        if not allowed:
+            self._error(
+                ProtocolError("rate_limited", "Node publish limit reached", 429),
+                {"Retry-After": str(retry_after)},
+            )
+            return
         accepted = self.server.store.put(dict(event))
         self._json(
             201 if accepted else 200,
@@ -274,7 +389,18 @@ class OACRequestHandler(BaseHTTPRequestHandler):
         )
 
     def do_HEAD(self) -> None:  # noqa: N802
-        self._error(ProtocolError("method_not_allowed", "Method is not supported", 405))
+        self._method_not_allowed()
+
+    def _method_not_allowed(self) -> None:
+        self._error(
+            ProtocolError("method_not_allowed", "Method is not supported", 405),
+            {"Allow": "GET, POST"},
+        )
+
+    do_DELETE = _method_not_allowed
+    do_OPTIONS = _method_not_allowed
+    do_PATCH = _method_not_allowed
+    do_PUT = _method_not_allowed
 
 
 def create_server(host: str, port: int, config: NodeConfig) -> OACHTTPServer:

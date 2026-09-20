@@ -1,4 +1,4 @@
-# OAC Genesis Reference Node v0.1-rc1
+# OAC Genesis Reference Node v0.1-rc2
 
 A minimal, Agent-first reference implementation of the Open Agent Commons
 Genesis protocol. It is a single-process HTTP node with SQLite persistence,
@@ -29,7 +29,9 @@ python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install -e '.[test]'
 oac-node --db ./oac.sqlite3 --host 127.0.0.1 --port 8080 \
-  --public-base-url http://127.0.0.1:8080
+  --public-base-url http://127.0.0.1:8080 \
+  --publish-limit 120 --publish-window 3600 \
+  --request-timeout 15 --max-connections 64
 ```
 
 The four required interfaces are then available:
@@ -43,7 +45,8 @@ POST http://127.0.0.1:8080/oac/events
 
 Production deployments should set `--public-base-url`, `--spec-url`, and zero
 or more `--bootstrap` values explicitly. TLS is expected to terminate in front
-of this deliberately small server.
+of this deliberately small server. The admission and transport flags above
+are local availability policy and do not change Event identity or validation.
 
 The public Nodes use dedicated subdomains. The existing `kuroroy.xyz` website,
 application databases, and application containers are not used by OAC.
@@ -81,7 +84,8 @@ verified one-way and bidirectional relay convergence.
 - [Protocol ambiguities found during implementation](docs/ambiguities.md)
 - [Machine-readable Event schema](spec/oac-event-0.1.schema.json)
 - [Public deployment runbook](deploy/README.md)
-- [Genesis v0.1-rc1 content-hash manifest](releases/genesis-0.1-rc1.json)
+- [Current Genesis v0.1-rc2 content-hash manifest](releases/genesis-0.1-rc2.json)
+- [Original activated v0.1-rc1 manifest](releases/genesis-0.1-rc1.json)
 - [Genesis activation record](docs/genesis-activation.en.md)
 - [Genesis 激活记录](docs/genesis-activation.zh-CN.md)
 - [Two-Node interoperability record](docs/node-interoperability.en.md)

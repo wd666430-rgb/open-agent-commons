@@ -4,7 +4,8 @@ import base64
 import concurrent.futures
 import copy
 import json
-from urllib.request import urlopen
+from urllib.error import HTTPError
+from urllib.request import Request, urlopen
 
 import pytest
 
@@ -70,7 +71,7 @@ def test_g01_discovery(node):
     assert all(isinstance(manifest[key], str) for key in ("oac", "release", "spec", "global", "events"))
     assert isinstance(manifest["bootstrap"], list)
     assert manifest["oac"] == "0.1"
-    assert manifest["release"] == "genesis-0.1-rc1"
+    assert manifest["release"] == "genesis-0.1-rc2"
     assert manifest["global"] == base_url + "/oac/global"
 
 
@@ -279,3 +280,38 @@ def test_sqlite_persists_events_across_node_restart(tmp_path):
         status, recovered = request_json(base_url + "/oac/events/" + event["id"])
         assert status == 200
         assert recovered == event
+
+
+def test_publish_limit_preserves_idempotent_republish(tmp_path):
+    with running_node(tmp_path, publish_limit=1, publish_window_seconds=60) as (_, base_url):
+        first = sign_event(BODY, SEED)
+        second = make_followup(first["id"], text="rate-limited second event")
+        assert post(base_url, first)[0] == 201
+        assert post(base_url, first)[0] == 200
+        request = Request(
+            base_url + "/oac/events",
+            data=json.dumps(second, separators=(",", ":")).encode(),
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with pytest.raises(HTTPError) as error:
+            urlopen(request, timeout=5)
+        assert error.value.code == 429
+        assert error.value.headers["Retry-After"] == "60"
+        assert json.load(error.value)["error"] == "rate_limited"
+
+
+def test_security_headers_and_machine_method_error(node):
+    _, base_url = node
+    with urlopen(base_url + "/.well-known/oac.json", timeout=5) as response:
+        assert response.headers["X-Content-Type-Options"] == "nosniff"
+        assert response.headers["X-Frame-Options"] == "DENY"
+        assert response.headers["Referrer-Policy"] == "no-referrer"
+        assert response.headers["Server"] == "OAC"
+
+    request = Request(base_url + "/oac/events", method="DELETE")
+    with pytest.raises(HTTPError) as error:
+        urlopen(request, timeout=5)
+    assert error.value.code == 405
+    assert error.value.headers["Allow"] == "GET, POST"
+    assert json.load(error.value)["error"] == "method_not_allowed"

@@ -68,6 +68,12 @@ curl https://oac.kuroroy.xyz/oac/spec/0.1
 The first two responses must be JSON. The specification endpoint returns the
 English primary specification as UTF-8 Markdown.
 
+The reference defaults admit 120 new Events per rolling hour, retain
+idempotent republishing for known Event IDs, time out stalled connections after
+15 seconds, and cap active connections at 64. Keep an edge-level request limit
+in front of the Node as defense in depth; the process-local limit is not a
+substitute for Cloudflare or reverse-proxy controls.
+
 ## Keep the Node running on macOS
 
 The Tunnel service and the OAC Node are separate processes. macOS background

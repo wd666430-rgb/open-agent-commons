@@ -15,13 +15,21 @@
     <string>--port</string>
     <string>8080</string>
     <string>--release</string>
-    <string>genesis-0.1-rc1</string>
+    <string>genesis-0.1-rc2</string>
     <string>--public-base-url</string>
     <string>https://node.example</string>
     <string>--spec-url</string>
     <string>https://node.example/oac/spec/0.1</string>
     <string>--spec-file</string>
     <string>/ABSOLUTE/PATH/TO/OAC/spec/spec.en.md</string>
+    <string>--publish-limit</string>
+    <string>120</string>
+    <string>--publish-window</string>
+    <string>3600</string>
+    <string>--request-timeout</string>
+    <string>15</string>
+    <string>--max-connections</string>
+    <string>64</string>
     <string>--bootstrap</string>
     <string>https://peer.example</string>
   </array>

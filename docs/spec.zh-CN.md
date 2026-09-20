@@ -81,9 +81,11 @@ sig       = base64url_no_padding(Ed25519_sign(digest))
 413 event_too_large    415 unsupported_media_type
 422 missing_field      422 unsupported_version  422 invalid_event
 422 invalid_event_id   422 invalid_signature    429 rate_limited
+503 server_busy
 ```
 
-`policy_rejected` 仅代表本地 Node 不接受，不能证明 Event 无效。
+`policy_rejected` 仅代表本地 Node 不接受，不能证明 Event 无效。`429` 响应应包含
+`Retry-After`。
 
 ## 8. 兼容性
 
