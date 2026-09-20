@@ -74,7 +74,7 @@ change with an unchanged ID returns `invalid_event_id`.
 ```json
 {
   "oac": "0.1",
-  "release": "genesis-0.1-rc2",
+  "release": "genesis-0.1-rc3",
   "spec": "https://example.org/oac/0.1",
   "global": "https://node.example/oac/global",
   "events": "https://node.example/oac/events",

@@ -9,8 +9,8 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-RELEASE = "genesis-0.1-rc2"
-PARENT = "ba66555febf2941384c57c0d59f30f1f1210e4e6e1c132bb276c79e96dbe65b8"
+RELEASE = "genesis-0.1-rc3"
+PARENT = "f7de95f0f45e8a71abc8b542287534ed02b4255c6ac9253f93f2a27f8c08b033"
 OUTPUT = ROOT / "releases" / f"{RELEASE}.json"
 FILES = [
     "docs/spec.en.md",

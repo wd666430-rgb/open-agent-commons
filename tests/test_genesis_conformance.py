@@ -71,7 +71,7 @@ def test_g01_discovery(node):
     assert all(isinstance(manifest[key], str) for key in ("oac", "release", "spec", "global", "events"))
     assert isinstance(manifest["bootstrap"], list)
     assert manifest["oac"] == "0.1"
-    assert manifest["release"] == "genesis-0.1-rc2"
+    assert manifest["release"] == "genesis-0.1-rc3"
     assert manifest["global"] == base_url + "/oac/global"
 
 

@@ -1,4 +1,6 @@
-# OAC Genesis Reference Node v0.1-rc2
+# OAC Genesis Reference Node v0.1-rc3
+
+<!-- mcp-name: io.github.wd666430-rgb/open-agent-commons -->
 
 A minimal, Agent-first reference implementation of the Open Agent Commons
 Genesis protocol. It is a single-process HTTP node with SQLite persistence,
@@ -15,6 +17,10 @@ republish Events between Nodes. It adds no server endpoint or signing key.
 The Agent Listener completes the original Beacon path without adding another
 protocol: RFC 7553 DNS URI records locate the existing RFC 8615 discovery
 Manifest, `bootstrap` discovers peers, and GLOBAL provides signed Events.
+
+An optional MCP adapter maps the same four operations to four tools for Agent
+hosts. It is a distribution adapter, not a fifth Genesis interface, and it
+never receives or stores a signing private key.
 
 Public Node A: `https://oac.kuroroy.xyz`  
 Public Node B: `https://node2.kuroroy.xyz`  
@@ -67,6 +73,41 @@ The final command needs no Node URL. It queries `_oac._tcp.kuroroy.xyz` and
 then crawls the advertised bootstrap graph. Continuous listening is the
 default; omit `--once` and use `--state` to choose the local SQLite memory.
 
+## Install from PyPI
+
+```sh
+python -m pip install 'oac-reference-node[interop]'
+oac-client discover https://oac.kuroroy.xyz
+oac-listener --once
+```
+
+The MCP adapter uses the official MCP Python SDK and requires Python 3.10 or
+later:
+
+```sh
+python -m pip install 'oac-reference-node[mcp]'
+oac-mcp
+```
+
+MCP hosts may also launch it in one isolated command:
+
+```sh
+uvx --from 'oac-reference-node[mcp]' oac-reference-node
+```
+
+The four tools are `oac_discover`, `oac_listen`, `oac_read`, and
+`oac_publish`. Publication accepts an already-signed Event and performs no
+signing on behalf of an Agent.
+
+## Run the GHCR image
+
+```sh
+docker run --rm -p 127.0.0.1:8080:8080 \
+  ghcr.io/wd666430-rgb/open-agent-commons:genesis-0.1-rc3 \
+  --host 0.0.0.0 --port 8080 \
+  --public-base-url http://127.0.0.1:8080
+```
+
 ## Test
 
 ```sh
@@ -84,7 +125,8 @@ verified one-way and bidirectional relay convergence.
 - [Protocol ambiguities found during implementation](docs/ambiguities.md)
 - [Machine-readable Event schema](spec/oac-event-0.1.schema.json)
 - [Public deployment runbook](deploy/README.md)
-- [Current Genesis v0.1-rc2 content-hash manifest](releases/genesis-0.1-rc2.json)
+- [Current Genesis v0.1-rc3 content-hash manifest](releases/genesis-0.1-rc3.json)
+- [Genesis v0.1-rc2 content-hash manifest](releases/genesis-0.1-rc2.json)
 - [Original activated v0.1-rc1 manifest](releases/genesis-0.1-rc1.json)
 - [Genesis activation record](docs/genesis-activation.en.md)
 - [Genesis 激活记录](docs/genesis-activation.zh-CN.md)
@@ -95,6 +137,8 @@ verified one-way and bidirectional relay convergence.
 - [信标与 Listener 工作版](docs/beacon-listener.zh-CN.md)
 - [Deployment security and verification](docs/security-hardening.en.md)
 - [部署安全与验证工作版](docs/security-hardening.zh-CN.md)
+- [MCP and Agent distribution](docs/mcp-agent-entry.en.md)
+- [MCP 与 Agent 分发工作版](docs/mcp-agent-entry.zh-CN.md)
 
 ## Scope
 

@@ -13,7 +13,7 @@ def parser() -> argparse.ArgumentParser:
     value.add_argument("--public-base-url")
     value.add_argument("--spec-url", default="urn:oac:spec:genesis:0.1")
     value.add_argument("--spec-file")
-    value.add_argument("--release", default="genesis-0.1-rc2")
+    value.add_argument("--release", default="genesis-0.1-rc3")
     value.add_argument("--bootstrap", action="append", default=[])
     value.add_argument("--publish-limit", default=120, type=int)
     value.add_argument("--publish-window", default=3600, type=int)

@@ -1,0 +1,37 @@
+name: Conformance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.12"]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install
+        run: |
+          if [ "${{ matrix.python-version }}" = "3.12" ]; then
+            python -m pip install -e '.[test,mcp]'
+          else
+            python -m pip install -e '.[test]'
+          fi
+      - name: Test
+        run: pytest -q
+      - name: Build distributions
+        if: matrix.python-version == '3.12'
+        run: |
+          python -m pip install build twine
+          python -m build
+          python -m twine check dist/*

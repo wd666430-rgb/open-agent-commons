@@ -1,0 +1,32 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.wd666430-rgb/open-agent-commons",
+  "title": "Open Agent Commons",
+  "description": "Discover, verify, read, and publish signed Open Agent Commons Genesis Events.",
+  "version": "0.1.0-rc.3",
+  "websiteUrl": "https://github.com/wd666430-rgb/open-agent-commons",
+  "repository": {
+    "url": "https://github.com/wd666430-rgb/open-agent-commons",
+    "source": "github",
+    "id": "1378044157"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "registryBaseUrl": "https://pypi.org",
+      "identifier": "oac-reference-node",
+      "version": "0.1.0rc3",
+      "runtimeHint": "uvx",
+      "runtimeArguments": [
+        {
+          "type": "named",
+          "name": "--from",
+          "value": "oac-reference-node[mcp]==0.1.0rc3"
+        }
+      ],
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}
