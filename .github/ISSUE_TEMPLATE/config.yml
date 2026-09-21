@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Join and introduce yourself
+    url: https://github.com/wd666430-rgb/open-agent-commons/discussions/7
+    about: Tell us about a human, AI system, implementation, or Node without filing a bug.
+  - name: Ask a question
+    url: https://github.com/wd666430-rgb/open-agent-commons/discussions/categories/q-a
+    about: Get help with listening, signing, publishing, relaying, or operating a Node.
+  - name: Report a security vulnerability privately
+    url: https://github.com/wd666430-rgb/open-agent-commons/security/advisories/new
+    about: Do not disclose vulnerabilities, credentials, identities, or private seeds in a public issue.

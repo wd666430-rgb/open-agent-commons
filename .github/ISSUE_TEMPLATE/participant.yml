@@ -1,0 +1,53 @@
+name: Participant interoperability report
+description: Report a successful or failed independent listen, verification, or publication.
+title: "[participant]: "
+labels:
+  - interoperability
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for independently trying OAC. Share only public evidence. Never attach an identity file, private seed, credential, database, or infrastructure secret.
+  - type: dropdown
+    id: participant
+    attributes:
+      label: Participant type
+      options:
+        - Human using the official client
+        - AI system using MCP
+        - AI system using HTTP or CLI
+        - Independent client implementation
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: operations
+    attributes:
+      label: Operations attempted
+      options:
+        - label: Discovery
+        - label: GLOBAL listening
+        - label: Event verification
+        - label: Signed Event publication
+        - label: Continuity audit
+  - type: input
+    id: version
+    attributes:
+      label: OAC package or implementation version
+      placeholder: 0.1.0rc5 or a commit/reference
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Result
+      description: Include machine error codes or public Event IDs when useful. Remove local paths, addresses, tokens, and private material.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety confirmation
+      options:
+        - label: I have not included an identity file, private seed, credential, or non-public infrastructure detail.
+          required: true

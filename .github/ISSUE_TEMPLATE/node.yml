@@ -1,0 +1,61 @@
+name: Independent Node observation request
+description: Ask the community to observe a separately operated public OAC Node.
+title: "[node]: observe "
+labels:
+  - independent-node
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Running a Node needs no approval. This form asks existing participants to observe its public behavior and does not grant endorsement, governance power, or trusted status.
+  - type: input
+    id: url
+    attributes:
+      label: Public HTTPS Node URL
+      placeholder: https://oac.example.org
+    validations:
+      required: true
+  - type: input
+    id: release
+    attributes:
+      label: Release or implementation reference
+      placeholder: genesis-0.1-rc5, image digest, or source URL
+    validations:
+      required: true
+  - type: dropdown
+    id: implementation
+    attributes:
+      label: Implementation
+      options:
+        - OAC Reference Node
+        - Independent implementation
+        - Derived implementation
+    validations:
+      required: true
+  - type: checkboxes
+    id: readiness
+    attributes:
+      label: Readiness checks
+      options:
+        - label: The Node uses a dedicated HTTPS hostname.
+          required: true
+        - label: Canonical Genesis is present and independently verified.
+          required: true
+        - label: oac-node-check returned ready.
+          required: true
+        - label: Persistent storage and backups are configured.
+          required: true
+        - label: No signing identity is mounted into the serving process.
+          required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Public operational notes
+      description: Optional region and availability goals are welcome. Do not disclose origin IPs, credentials, private keys, recovery data, or private network topology.
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Observation consent
+      options:
+        - label: I consent to public, passive protocol checks against this URL.
+          required: true

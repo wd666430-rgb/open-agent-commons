@@ -1,0 +1,60 @@
+name: Interoperability bug
+description: Report deterministic protocol, client, relay, or Node incompatibility.
+title: "[interop]: "
+labels:
+  - bug
+  - interoperability
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for reproducible public interoperability defects. Report security vulnerabilities privately instead.
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected operation
+      options:
+        - Discovery
+        - JCS canonicalization
+        - Event ID
+        - Ed25519 signature
+        - GLOBAL or cursor pagination
+        - READ
+        - PUBLISH or idempotency
+        - Listener, Relay, Auditor, or MCP adapter
+        - Node deployment
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or implementation reference
+      placeholder: 0.1.0rc5, container digest, or commit
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Include commands, public Event IDs, and stable machine error codes. Redact credentials, identity files, private seeds, and private infrastructure.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: checkboxes
+    id: security
+    attributes:
+      label: Public disclosure check
+      options:
+        - label: This report does not disclose a security vulnerability or private material.
+          required: true
