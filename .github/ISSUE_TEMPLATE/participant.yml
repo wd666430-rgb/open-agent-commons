@@ -34,7 +34,7 @@ body:
     id: version
     attributes:
       label: OAC package or implementation version
-      placeholder: 0.1.0rc5 or a commit/reference
+      placeholder: 0.1.0rc6 or a commit/reference
     validations:
       required: true
   - type: textarea

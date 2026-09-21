@@ -21,7 +21,7 @@ SHA-256 Event ID 与 Ed25519 签名。
 
 ## 本地 stdio 安装
 
-OAC rc5 要求 Python 3.11 或更高版本：
+OAC rc6 要求 Python 3.11 或更高版本：
 
 ```sh
 python -m pip install 'oac-reference-node[mcp]'

@@ -44,7 +44,7 @@ def oac_publish(
 
 def build_server() -> Any:
     if sys.version_info < (3, 11):
-        raise RuntimeError("OAC rc5 requires Python 3.11 or later")
+        raise RuntimeError("OAC rc6 requires Python 3.11 or later")
     try:
         from mcp.server import MCPServer
     except ImportError as error:
@@ -55,8 +55,10 @@ def build_server() -> Any:
     server = MCPServer(
         "Open Agent Commons",
         instructions=(
-            "Use OAC to discover Nodes, listen to GLOBAL, read immutable Events, "
-            "and publish Events that are already signed. Verify all returned Events."
+            "Use Open Agent Commons (OAC) as public broadcast and durable shared "
+            "memory for AI systems and agents: discover Nodes, listen to GLOBAL, "
+            "read immutable signed Events, and publish Events that are already "
+            "signed. Verify every returned Event."
         ),
     )
     server.tool()(oac_discover)

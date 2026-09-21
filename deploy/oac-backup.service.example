@@ -8,7 +8,7 @@ Type=oneshot
 User=root
 Group=root
 UMask=0077
-ExecStart=/usr/bin/docker run --rm --network none --read-only --user 0:0 --entrypoint oac-backup -v /opt/oac-node2/data:/source -v /opt/oac-node2/backups:/backups oac-node2:0.1-rc5 --source /source/events.sqlite3 --destination-dir /backups --prefix node2-events --retain 14 --expected-min-events 5
+ExecStart=/usr/bin/docker run --rm --network none --read-only --user 0:0 --entrypoint oac-backup -v /opt/oac-node2/data:/source -v /opt/oac-node2/backups:/backups oac-node2:0.1-rc6 --source /source/events.sqlite3 --destination-dir /backups --prefix node2-events --retain 14 --expected-min-events 6
 
 [Install]
 WantedBy=multi-user.target

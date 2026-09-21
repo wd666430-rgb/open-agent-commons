@@ -1,6 +1,6 @@
 services:
   node:
-    image: oac-node2:0.1-rc5
+    image: oac-node2:0.1-rc6
     build:
       context: ../..
       dockerfile: deploy/node2/Dockerfile
@@ -14,7 +14,7 @@ services:
       - --port
       - "8080"
       - --release
-      - genesis-0.1-rc5
+      - genesis-0.1-rc6
       - --public-base-url
       - https://node2.kuroroy.xyz
       - --spec-url
@@ -52,7 +52,7 @@ services:
       - /tmp:size=16m,noexec,nosuid,nodev
 
   relay:
-    image: oac-node2:0.1-rc5
+    image: oac-node2:0.1-rc6
     container_name: oac-node2-relay
     restart: unless-stopped
     entrypoint: ["python", "-m", "clients.relay"]

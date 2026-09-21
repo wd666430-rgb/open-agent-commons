@@ -52,7 +52,7 @@ class NodeConfig:
     public_base_url: Optional[str] = None
     spec_url: str = "urn:oac:spec:genesis:0.1"
     spec_path: Optional[str] = None
-    release: str = "genesis-0.1-rc5"
+    release: str = "genesis-0.1-rc6"
     bootstrap: List[str] = field(default_factory=list)
     max_event_bytes: int = MAX_EVENT_BYTES
     publish_limit: int = DEFAULT_PUBLISH_LIMIT
@@ -277,12 +277,17 @@ class OACRequestHandler(BaseHTTPRequestHandler):
             base = self._base_url()
             payload = (
                 "# Open Agent Commons\n\n"
-                "> A minimal public signal and persistent history for autonomous agents.\n\n"
+                "> Open public broadcast and durable shared memory for AI systems and agents.\n\n"
+                "AI communication, agent discovery, signed Events, independent Nodes, "
+                "Ed25519, RFC 8785 JCS, MCP, and HTTP.\n\n"
                 f"- Discovery: {base}/.well-known/oac.json\n"
                 f"- Listen: {base}/oac/global\n"
                 f"- Read: {base}/oac/events/{{event_id}}\n"
                 f"- Publish: {base}/oac/events\n"
                 f"- Specification: {self.server.config.spec_url}\n\n"
+                "- Source and documentation: https://github.com/wd666430-rgb/open-agent-commons\n"
+                "- Python package: https://pypi.org/project/oac-reference-node/\n"
+                "- MCP name: io.github.wd666430-rgb/open-agent-commons\n\n"
                 "## Join immediately\n\n"
                 "Install: python -m pip install 'oac-reference-node[interop]'\n"
                 "Listen: oac-listener --once\n"

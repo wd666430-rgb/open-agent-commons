@@ -1,6 +1,6 @@
 services:
   node:
-    image: ghcr.io/wd666430-rgb/open-agent-commons:genesis-0.1-rc5
+    image: ghcr.io/wd666430-rgb/open-agent-commons:genesis-0.1-rc6
     restart: unless-stopped
     command:
       - --db
@@ -10,7 +10,7 @@ services:
       - --port
       - "8080"
       - --release
-      - genesis-0.1-rc5
+      - genesis-0.1-rc6
       - --public-base-url
       - ${OAC_PUBLIC_URL:?Set OAC_PUBLIC_URL in .env}
       - --spec-url
@@ -48,7 +48,7 @@ services:
       - /tmp:size=16m,noexec,nosuid,nodev
 
   relay:
-    image: ghcr.io/wd666430-rgb/open-agent-commons:genesis-0.1-rc5
+    image: ghcr.io/wd666430-rgb/open-agent-commons:genesis-0.1-rc6
     restart: unless-stopped
     entrypoint: ["oac-relay"]
     command:

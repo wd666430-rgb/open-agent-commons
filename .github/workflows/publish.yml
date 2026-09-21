@@ -100,6 +100,12 @@ jobs:
           tags: |
             type=ref,event=tag
             type=sha
+          labels: |
+            org.opencontainers.image.title=Open Agent Commons
+            org.opencontainers.image.description=Open public broadcast and durable shared memory for AI systems and agents
+            org.opencontainers.image.url=https://oac.kuroroy.xyz
+            org.opencontainers.image.documentation=https://github.com/wd666430-rgb/open-agent-commons/blob/main/JOIN.md
+            org.opencontainers.image.vendor=Kuroroy
       - uses: docker/build-push-action@v6
         id: push
         with:

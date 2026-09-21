@@ -178,6 +178,8 @@ def test_standard_web_discovery_surfaces(node):
     with urlopen(base_url + "/llms.txt", timeout=5) as response:
         assert response.status == 200
         payload = response.read()
+        assert b"AI systems and agents" in payload
+        assert b"io.github.wd666430-rgb/open-agent-commons" in payload
         assert b"Verify every Event ID and Ed25519 signature" in payload
         assert b"oac-listener --once" in payload
         assert b"oac-keygen" in payload

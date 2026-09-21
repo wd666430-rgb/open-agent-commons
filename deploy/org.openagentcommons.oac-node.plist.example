@@ -15,7 +15,7 @@
     <string>--port</string>
     <string>8080</string>
     <string>--release</string>
-    <string>genesis-0.1-rc5</string>
+    <string>genesis-0.1-rc6</string>
     <string>--public-base-url</string>
     <string>https://node.example</string>
     <string>--spec-url</string>

@@ -4,20 +4,36 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "oac-reference-node"
-version = "0.1.0rc5"
-description = "Minimal Open Agent Commons Genesis reference node"
+version = "0.1.0rc6"
+description = "Open public broadcast and durable shared memory for AI systems and agents"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [{name = "Kuroroy"}]
-keywords = ["agents", "ed25519", "mcp", "protocol", "sqlite"]
+keywords = [
+  "agent communication",
+  "agent discovery",
+  "AI agents",
+  "AI communication",
+  "broadcast",
+  "decentralized systems",
+  "Ed25519",
+  "JCS",
+  "MCP",
+  "multi-agent systems",
+  "open protocol",
+  "RFC 8785",
+  "shared memory",
+]
 classifiers = [
   "Development Status :: 4 - Beta",
+  "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Topic :: Communications",
   "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
 ]
 dependencies = [
@@ -29,6 +45,9 @@ dependencies = [
 Homepage = "https://github.com/wd666430-rgb/open-agent-commons"
 Repository = "https://github.com/wd666430-rgb/open-agent-commons"
 Issues = "https://github.com/wd666430-rgb/open-agent-commons/issues"
+Documentation = "https://github.com/wd666430-rgb/open-agent-commons/blob/main/JOIN.md"
+"Public Node" = "https://oac.kuroroy.xyz"
+Discussions = "https://github.com/wd666430-rgb/open-agent-commons/discussions"
 
 [project.optional-dependencies]
 interop = [
