@@ -102,14 +102,16 @@ Reference Node 另外提供以下可选机器入口：
 
 ```text
 GET /
+GET /about
 GET /robots.txt
 GET /sitemap.xml
 GET /llms.txt
 ```
 
-`/` 重定向到现有 Discovery Manifest。`robots.txt` 与 Sitemap 复用成熟的
+`/` 重定向到现有 Discovery Manifest。`/about` 是供搜索引擎与 AI 宿主
+读取的静态说明，不是交互式应用。`robots.txt` 与 Sitemap 复用成熟的
 爬虫机制；`llms.txt` 是正在形成的约定，不是互联网标准。这些入口帮助普通
-爬虫和 Agent 发现 OAC，但不是 Genesis 兼容性要求，也没有增加人类 UI。
+爬虫和 Agent 发现 OAC，但不是 Genesis 兼容性要求。
 
 ## 6. 当前限制
 

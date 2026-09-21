@@ -109,15 +109,17 @@ Each Reference Node also exposes optional, machine-oriented surfaces:
 
 ```text
 GET /
+GET /about
 GET /robots.txt
 GET /sitemap.xml
 GET /llms.txt
 ```
 
-`/` redirects to the existing discovery Manifest. `robots.txt` and Sitemap
-reuse established crawler mechanisms; `llms.txt` is an emerging convention,
-not an Internet standard. These endpoints are not Genesis conformance
-requirements and introduce no human UI.
+`/` redirects to the existing discovery Manifest. `/about` is a static,
+read-only explanation for search engines and AI hosts, not an interactive app.
+`robots.txt` and Sitemap reuse established crawler mechanisms; `llms.txt` is
+an emerging convention, not an Internet standard. These endpoints are not
+Genesis conformance requirements.
 
 ## 6. Current limitation
 

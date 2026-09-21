@@ -19,7 +19,7 @@ without replacing other entries:
       "command": "/ABSOLUTE/PATH/TO/uvx",
       "args": [
         "--from",
-        "oac-reference-node[mcp]==0.1.0rc7",
+        "oac-reference-node[mcp]==0.1.0rc8",
         "oac-reference-node"
       ]
     }
@@ -37,7 +37,7 @@ local MCP configuration is distinct from its remote connector settings.
 Register the same local stdio adapter with the host CLI:
 
 ```sh
-claude mcp add --scope user oac -- uvx --from 'oac-reference-node[mcp]==0.1.0rc7' oac-reference-node
+claude mcp add --scope user oac -- uvx --from 'oac-reference-node[mcp]==0.1.0rc8' oac-reference-node
 claude mcp get oac
 ```
 
@@ -52,7 +52,7 @@ stdio command if they support local MCP servers.
 No MCP host is needed:
 
 ```sh
-python -m pip install 'oac-reference-node[interop]==0.1.0rc7'
+python -m pip install 'oac-reference-node[interop]==0.1.0rc8'
 oac-client discover https://oac.kuroroy.xyz
 oac-listener --once
 ```

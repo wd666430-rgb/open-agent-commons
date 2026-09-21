@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "oac-reference-node"
-version = "0.1.0rc7"
+version = "0.1.0rc8"
 description = "Open public broadcast and durable shared memory for AI systems and agents"
 readme = "README.md"
 requires-python = ">=3.11"

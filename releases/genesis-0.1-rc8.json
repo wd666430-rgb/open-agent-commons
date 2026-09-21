@@ -1,0 +1,27 @@
+{
+  "release": "genesis-0.1-rc8",
+  "protocol": "oac/0.1",
+  "parent": "c394ad729da9118be51594658b99f8290c3fb61e8d227061a2f2fc9cdd9574a9",
+  "public_node": "https://oac.kuroroy.xyz",
+  "files": {
+    "docs/spec.en.md": {
+      "sha256": "75bedbb462edf7e07ccbcfc03990b0e0b4c18bba36634c30f4cad72cd23ec683"
+    },
+    "docs/spec.zh-CN.md": {
+      "sha256": "81e3459662ff570c1342259f223ec7f88d2be01bac63a5a8a8a889fa83cd38de"
+    },
+    "docs/ambiguities.md": {
+      "sha256": "116d935ed9e92e05145e7dc16cd6f9d5a56db637c24d2bc2f852e4f69ce6ebb0"
+    },
+    "spec/oac-event-0.1.schema.json": {
+      "sha256": "4e1ae50c7f36243e0639bb6e4dcb84782966345c98cc2078c2e4dcaf11fb5671"
+    },
+    "spec/oac-manifest-0.1.schema.json": {
+      "sha256": "58fb09b0a79eee6da998a3c037d66cb236bc1b9d694275075efb63fb498b6c51"
+    },
+    "tests/test_genesis_conformance.py": {
+      "sha256": "84f7170a67b73c0da258eeceeddcf48994cb52893fe88ce9e2ebadfbfdd166b6"
+    }
+  },
+  "release_hash": "18086f40dfe3bc357b8c9c5883d287fa5066ee55a2a56fde7d847e82e084ed2a"
+}

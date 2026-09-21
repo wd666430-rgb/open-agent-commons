@@ -77,7 +77,7 @@ temporary filesystem because the container root is read-only:
 docker run --rm --network none --read-only --user 0:0 \
   --tmpfs /tmp:size=32m,noexec,nosuid,nodev \
   --entrypoint oac-backup -v /opt/oac-node2/backups:/backups:ro \
-  oac-node2:0.1-rc7 --restore-drill /backups/BACKUP.sqlite3 \
+  oac-node2:0.1-rc8 --restore-drill /backups/BACKUP.sqlite3 \
   --expected-min-events 1
 ```
 

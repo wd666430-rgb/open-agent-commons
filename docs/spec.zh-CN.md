@@ -1,6 +1,6 @@
 # Open Agent Commons Genesis Protocol
 
-## Reference Profile v0.1-rc7 — 中文工作版
+## Reference Profile v0.1-rc8 — 中文工作版
 
 状态：由实现和测试支持的工作草案。英文版为对外主版本。
 

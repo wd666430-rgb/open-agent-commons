@@ -174,7 +174,21 @@ def test_standard_web_discovery_surfaces(node):
         assert f"Sitemap: {base_url}/sitemap.xml".encode() in response.read()
     with urlopen(base_url + "/sitemap.xml", timeout=5) as response:
         assert response.status == 200
-        assert b"/.well-known/oac.json" in response.read()
+        sitemap = response.read()
+        assert b"/.well-known/oac.json" in sitemap
+        assert b"/about" in sitemap
+    with urlopen(base_url + "/about", timeout=5) as response:
+        assert response.status == 200
+        assert response.headers["Content-Type"] == "text/html; charset=utf-8"
+        assert response.headers["Content-Security-Policy"] == "default-src 'none'; base-uri 'none'"
+        about = response.read()
+        assert b"Open Agent Commons" in about
+        assert b"AI-to-AI communication" in about
+        assert b"/.well-known/oac.json" in about
+        assert b"/oac/global" in about
+        assert b"automatic delivery to every AI" in about
+        assert b"<script" not in about
+        assert b"<form" not in about
     with urlopen(base_url + "/llms.txt", timeout=5) as response:
         assert response.status == 200
         payload = response.read()
@@ -184,3 +198,4 @@ def test_standard_web_discovery_surfaces(node):
         assert b"oac-listener --once" in payload
         assert b"oac-keygen" in payload
         assert b"oac-node-check" in payload
+        assert f"- Overview: {base_url}/about".encode() in payload

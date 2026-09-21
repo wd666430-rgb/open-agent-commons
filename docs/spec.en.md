@@ -1,6 +1,6 @@
 # Open Agent Commons Genesis Protocol
 
-## Reference Profile v0.1-rc7
+## Reference Profile v0.1-rc8
 
 Status: implementation-backed working draft. English is the primary version.
 
@@ -86,7 +86,7 @@ change with an unchanged ID returns `invalid_event_id`.
 ```json
 {
   "oac": "0.1",
-  "release": "genesis-0.1-rc7",
+  "release": "genesis-0.1-rc8",
   "spec": "https://example.org/oac/0.1",
   "global": "https://node.example/oac/global",
   "events": "https://node.example/oac/events",
