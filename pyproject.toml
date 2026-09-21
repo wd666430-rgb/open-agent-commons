@@ -57,7 +57,7 @@ interop = [
 test = [
   "PyNaCl>=1.5,<2",
   "dnspython>=2.7,<3",
-  "pytest>=8,<9",
+  "pytest>=8,<10",
 ]
 mcp = [
   "PyNaCl>=1.5,<2",
