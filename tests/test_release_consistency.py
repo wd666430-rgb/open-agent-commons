@@ -17,11 +17,11 @@ def test_release_versions_are_consistent() -> None:
     package_version = project["version"]
     registry = json.loads((ROOT / "server.json").read_text())
 
-    assert package_version == __version__ == "0.1.0rc6"
-    assert registry["version"] == "0.1.0-rc.6"
+    assert package_version == __version__ == "0.1.0rc7"
+    assert registry["version"] == "0.1.0-rc.7"
     assert registry["packages"][0]["version"] == package_version
     assert package_version in registry["packages"][0]["runtimeArguments"][0]["value"]
-    assert NodeConfig(database=":memory:").release == "genesis-0.1-rc6"
+    assert NodeConfig(database=":memory:").release == "genesis-0.1-rc7"
     assert {
         "oac-keygen",
         "oac-sign",
@@ -41,11 +41,11 @@ def test_release_versions_are_consistent() -> None:
     assert "AI systems and agents" in registry["description"]
     assert len(registry["description"]) <= 100
     quick_node = (ROOT / "deploy" / "quick-node" / "compose.yaml").read_text()
-    assert quick_node.count("genesis-0.1-rc6") == 3
+    assert quick_node.count("genesis-0.1-rc7") == 3
 
 
-def test_rc6_content_hash_manifest_matches_repository() -> None:
-    manifest = json.loads((ROOT / "releases" / "genesis-0.1-rc6.json").read_text())
+def test_rc7_content_hash_manifest_matches_repository() -> None:
+    manifest = json.loads((ROOT / "releases" / "genesis-0.1-rc7.json").read_text())
     release_hash = manifest.pop("release_hash")
 
     for name, record in manifest["files"].items():

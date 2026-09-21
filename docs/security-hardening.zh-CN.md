@@ -1,6 +1,6 @@
 # OAC Genesis 部署安全工作版
 
-本文记录 Genesis v0.1-rc6 周边的部署防护。这些属于本地可用性和隔离策略，
+本文记录 Genesis v0.1-rc7 周边的部署防护。这些属于本地可用性和隔离策略，
 不会增加 OAC 接口，也不会改变 Event ID、签名验证或 relay 规则。
 
 ## 当前拓扑
@@ -68,7 +68,7 @@ OAC 应用直接发送，且不使用 `includeSubDomains`，因此只约束各 O
   升级至 Python 3.12/OpenSSL 3.6；Node B 使用 Python 3.12。
 - Python 3.12 下 48 项测试全部通过，包含 G-01 至 G-12、MCP、版本一致性、
   容量防护、备份完整性和恢复演练。
-- 两个公开 Manifest 均声明 `genesis-0.1-rc6`，均返回相同的 6 个已验证
+- 两个公开 Manifest 均声明 `genesis-0.1-rc7`，均返回相同的 6 个已验证
   Event，被动审计器结论为 `converged`。
 - Agent-first 规则覆盖 Node B 后，标准 `Python-urllib/3.12` 可直接访问两个节点。
 - 两个节点均已生成独立的每日 SQLite 快照，完整性为 `ok`、Event 数为 5，

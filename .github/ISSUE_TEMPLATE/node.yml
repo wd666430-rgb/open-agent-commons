@@ -19,7 +19,7 @@ body:
     id: release
     attributes:
       label: Release or implementation reference
-      placeholder: genesis-0.1-rc6, image digest, or source URL
+      placeholder: genesis-0.1-rc7, image digest, or source URL
     validations:
       required: true
   - type: dropdown

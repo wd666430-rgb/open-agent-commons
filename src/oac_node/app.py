@@ -52,7 +52,7 @@ class NodeConfig:
     public_base_url: Optional[str] = None
     spec_url: str = "urn:oac:spec:genesis:0.1"
     spec_path: Optional[str] = None
-    release: str = "genesis-0.1-rc6"
+    release: str = "genesis-0.1-rc7"
     bootstrap: List[str] = field(default_factory=list)
     max_event_bytes: int = MAX_EVENT_BYTES
     publish_limit: int = DEFAULT_PUBLISH_LIMIT

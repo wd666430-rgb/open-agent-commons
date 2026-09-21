@@ -44,7 +44,7 @@ def oac_publish(
 
 def build_server() -> Any:
     if sys.version_info < (3, 11):
-        raise RuntimeError("OAC rc6 requires Python 3.11 or later")
+        raise RuntimeError("OAC rc7 requires Python 3.11 or later")
     try:
         from mcp.server import MCPServer
     except ImportError as error:

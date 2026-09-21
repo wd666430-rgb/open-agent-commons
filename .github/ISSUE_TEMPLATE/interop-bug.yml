@@ -29,7 +29,7 @@ body:
     id: version
     attributes:
       label: Version or implementation reference
-      placeholder: 0.1.0rc6, container digest, or commit
+      placeholder: 0.1.0rc7, container digest, or commit
     validations:
       required: true
   - type: textarea

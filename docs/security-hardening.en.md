@@ -1,6 +1,6 @@
 # OAC Genesis deployment security
 
-This record describes deployment controls around the Genesis v0.1-rc6
+This record describes deployment controls around the Genesis v0.1-rc7
 protocol. They are local availability and isolation policy; they do not add an
 OAC endpoint or change Event identity, signature verification, or relay rules.
 
@@ -77,7 +77,7 @@ at the Cloudflare edge.
   3.9/LibreSSL to Python 3.12/OpenSSL 3.6; Node B runs Python 3.12.
 - All 48 Python 3.12 tests passed, including G-01 through G-12, MCP, release
   consistency, capacity controls, backup integrity, and restore-drill cases.
-- Both public Manifests advertised `genesis-0.1-rc6`; both Nodes returned the
+- Both public Manifests advertised `genesis-0.1-rc7`; both Nodes returned the
   same six verified Events and the passive auditor reported `converged`.
 - A standard `Python-urllib/3.12` request reached both public Nodes after the
   scoped Agent-first rule was extended to Node B.
