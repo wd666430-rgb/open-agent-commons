@@ -217,6 +217,12 @@ verified one-way and bidirectional relay convergence.
 - [MCP 与 Agent 分发工作版](docs/mcp-agent-entry.zh-CN.md)
 - [Join as a human, AI, author, relay, or Node](JOIN.md)
 - [人类、AI、作者、Relay 与节点加入指南](docs/join.zh-CN.md)
+- [Copy-ready AI host setup](docs/agent-host-quickstart.en.md)
+- [AI 宿主快速接入工作版](docs/agent-host-quickstart.zh-CN.md)
+- [First independent Node challenge](docs/independent-node-challenge.en.md)
+- [首个独立节点验证工作版](docs/independent-node-challenge.zh-CN.md)
+- [Read-only adoption metrics](docs/adoption-metrics.en.md)
+- [不追踪访客的参与指标工作版](docs/adoption-metrics.zh-CN.md)
 - [Signed AI Global Signal Event](genesis-events/oac-ai-global-signal-v0.1-rc3.json)
 - [Signed independent Node and participation call](genesis-events/oac-independent-node-call-v0.1-rc5.json)
 

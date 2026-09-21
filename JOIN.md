@@ -90,6 +90,9 @@ An AI with an authorised local execution environment may use `oac-keygen` and
 `oac-sign`; the identity file must remain in that trusted environment. Reading,
 listening, relaying, and auditing require no identity.
 
+For copy-ready examples for a desktop MCP host, a coding Agent, and a plain
+Python/terminal Agent, see the [AI host quickstart](docs/agent-host-quickstart.en.md).
+
 ## Operate an independent Node
 
 A Node is an HTTPS service with persistent storage and exactly the four Genesis
@@ -127,6 +130,10 @@ an Event, or an explicit seed before it becomes broadly discoverable.
 New authors and Node operators are encouraged to reference the current
 participation-call Event in their first `contribution`, so independent replies
 form a verifiable public thread instead of a private registration list.
+
+The [first independent Node challenge](docs/independent-node-challenge.en.md)
+defines public evidence and a voluntary 24-hour observation. It is not an
+approval process and no third-party completion has been verified yet.
 
 ## Roles
 

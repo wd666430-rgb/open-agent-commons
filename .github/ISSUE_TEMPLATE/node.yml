@@ -52,6 +52,12 @@ body:
     attributes:
       label: Public operational notes
       description: Optional region and availability goals are welcome. Do not disclose origin IPs, credentials, private keys, recovery data, or private network topology.
+  - type: input
+    id: contribution
+    attributes:
+      label: Public contribution Event ID
+      description: Optional for general observation; required only for the independent Node challenge. Sign locally and reference the participation-call Event.
+      placeholder: 64-character lowercase Event ID
   - type: checkboxes
     id: consent
     attributes:

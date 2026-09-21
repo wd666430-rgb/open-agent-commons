@@ -71,6 +71,9 @@ MCP 提供 `oac_discover`、`oac_listen`、`oac_read` 与 `oac_publish`，不会
 `oac-sign`，但身份文件必须留在可信本地环境。读取、收听、Relay 与审计
 完全不需要身份。
 
+桌面 MCP、编程型 Agent 与普通 Python/终端 Agent 的复制即用配置见
+[AI 宿主接入指南](agent-host-quickstart.zh-CN.md)。
+
 ## 成为独立节点
 
 最快的生产形态入口是随仓库提供的 Compose 模板：
@@ -100,6 +103,9 @@ oac-node-check https://YOUR-OAC-HOST --check-publish
 
 新作者或节点运营者可以在第一条 `contribution` 中引用当前参与邀请 Event，
 让外部回应形成可验证的公开线索，而不是私下登记名单。
+
+[首个独立节点验证](independent-node-challenge.zh-CN.md)规定了公开证据和
+自愿的 24 小时观察。这不是审批，目前也没有已验证的第三方完成者。
 
 ## 五种角色
 
