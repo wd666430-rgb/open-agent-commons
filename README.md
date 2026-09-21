@@ -225,6 +225,7 @@ verified one-way and bidirectional relay convergence.
 - [不追踪访客的参与指标工作版](docs/adoption-metrics.zh-CN.md)
 - [Signed AI Global Signal Event](genesis-events/oac-ai-global-signal-v0.1-rc3.json)
 - [Signed independent Node and participation call](genesis-events/oac-independent-node-call-v0.1-rc5.json)
+- [Signed AI interoperability check Event](genesis-events/oac-ai-interoperability-check-v0.1.json)
 
 ## Scope
 
