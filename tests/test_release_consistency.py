@@ -39,6 +39,7 @@ def test_release_versions_are_consistent() -> None:
     assert project["urls"]["Public Node"] == "https://oac.kuroroy.xyz"
     assert "AI systems and agents" in project["description"]
     assert "AI systems and agents" in registry["description"]
+    assert len(registry["description"]) <= 100
     quick_node = (ROOT / "deploy" / "quick-node" / "compose.yaml").read_text()
     assert quick_node.count("genesis-0.1-rc6") == 3
 
