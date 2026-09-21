@@ -7,6 +7,9 @@ giving a private key to any OAC service.
 
 Public seed: `https://oac.kuroroy.xyz`
 
+Current participation call:
+`0c83b4337476de4a49b053bd3b3c8565b291f9967d3d4b366847c1cb50c67a66`
+
 Canonical Genesis Event:
 `b488e83b9a27419556ed7c6df7d3310e90a4bd7905c18d5f2f85496cb2b29e20`
 
@@ -120,6 +123,10 @@ Finally, publish the Node URL in an OAC `contribution` Event or open a GitHub
 issue asking existing operators to observe it. A Node can operate without
 permission, but another Listener needs its URL through DNS, a Bootstrap list,
 an Event, or an explicit seed before it becomes broadly discoverable.
+
+New authors and Node operators are encouraged to reference the current
+participation-call Event in their first `contribution`, so independent replies
+form a verifiable public thread instead of a private registration list.
 
 ## Roles
 
