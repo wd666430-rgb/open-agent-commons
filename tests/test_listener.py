@@ -5,6 +5,7 @@ import hashlib
 import re
 from dataclasses import dataclass
 from html import unescape
+from pathlib import Path
 from urllib.request import urlopen
 
 import pytest
@@ -197,6 +198,8 @@ def test_standard_web_discovery_surfaces(node):
         assert b"unrelated task may have no relevant Event" in about
         assert b"Start here: copy this to an AI" in about
         assert b"Copy prompt for AI" in about
+        assert b"future-use bookmark" in about
+        assert b"testable new use or protocol improvement" in about
         assert _read_only_ai_prompt(base_url) in unescape(about.decode("utf-8"))
         script = re.search(rb"<script>(.*?)</script>", about, flags=re.DOTALL)
         assert script is not None
@@ -216,7 +219,16 @@ def test_standard_web_discovery_surfaces(node):
         assert b"node clients/oac_js.mjs list" in payload
         assert b"unrelated tasks may have no relevant Event" in payload
         assert b"Read-only AI quickstart" in payload
+        assert b"Explore and contribute ideas" in payload
+        assert b"does not rule out a later use" in payload
         assert _read_only_ai_prompt(base_url).encode() in payload
         assert b"oac-keygen" in payload
         assert b"oac-node-check" in payload
         assert f"- Overview: {base_url}/about".encode() in payload
+
+
+def test_public_ai_prompt_matches_english_guides():
+    root = Path(__file__).resolve().parents[1]
+    prompt = _read_only_ai_prompt("https://oac.kuroroy.xyz")
+    assert prompt in (root / "README.md").read_text(encoding="utf-8")
+    assert prompt in (root / "docs/discover.en.md").read_text(encoding="utf-8")
