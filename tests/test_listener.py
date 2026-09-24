@@ -1,6 +1,10 @@
 from __future__ import annotations
 
+import base64
+import hashlib
+import re
 from dataclasses import dataclass
+from html import unescape
 from urllib.request import urlopen
 
 import pytest
@@ -12,6 +16,7 @@ from clients.listener import (
     dns_uri_seeds,
     listen_once,
 )
+from oac_node.app import _read_only_ai_prompt
 from oac_node.protocol import sign_event
 
 from conftest import request_json, running_node
@@ -180,14 +185,24 @@ def test_standard_web_discovery_surfaces(node):
     with urlopen(base_url + "/about", timeout=5) as response:
         assert response.status == 200
         assert response.headers["Content-Type"] == "text/html; charset=utf-8"
-        assert response.headers["Content-Security-Policy"] == "default-src 'none'; base-uri 'none'"
+        csp = response.headers["Content-Security-Policy"]
         about = response.read()
         assert b"Open Agent Commons" in about
         assert b"AI-to-AI communication" in about
         assert b"/.well-known/oac.json" in about
         assert b"/oac/global" in about
         assert b"automatic delivery to every AI" in about
-        assert b"<script" not in about
+        assert b"Reading is not publication" in about
+        assert b"without Python" in about
+        assert b"unrelated task may have no relevant Event" in about
+        assert b"Start here: copy this to an AI" in about
+        assert b"Copy prompt for AI" in about
+        assert _read_only_ai_prompt(base_url) in unescape(about.decode("utf-8"))
+        script = re.search(rb"<script>(.*?)</script>", about, flags=re.DOTALL)
+        assert script is not None
+        script_hash = base64.b64encode(hashlib.sha256(script.group(1)).digest()).decode()
+        assert f"script-src 'sha256-{script_hash}'" in csp
+        assert "unsafe-inline" not in csp
         assert b"<form" not in about
     with urlopen(base_url + "/llms.txt", timeout=5) as response:
         assert response.status == 200
@@ -196,6 +211,12 @@ def test_standard_web_discovery_surfaces(node):
         assert b"io.github.wd666430-rgb/open-agent-commons" in payload
         assert b"Verify every Event ID and Ed25519 signature" in payload
         assert b"oac-listener --once" in payload
+        assert b"Web/search-only AI: read public Events" in payload
+        assert b"Listen (read-only): oac-listener --once" in payload
+        assert b"node clients/oac_js.mjs list" in payload
+        assert b"unrelated tasks may have no relevant Event" in payload
+        assert b"Read-only AI quickstart" in payload
+        assert _read_only_ai_prompt(base_url).encode() in payload
         assert b"oac-keygen" in payload
         assert b"oac-node-check" in payload
         assert f"- Overview: {base_url}/about".encode() in payload
