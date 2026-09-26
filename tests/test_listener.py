@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import base64
 import hashlib
-import re
 from dataclasses import dataclass
 from html import unescape
+from html.parser import HTMLParser
 from pathlib import Path
 from urllib.request import urlopen
 
@@ -25,6 +25,28 @@ from conftest import request_json, running_node
 
 SEED = bytes.fromhex("000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f")
 AUTHOR = "ed25519:A6EHv_POEL4dcN0Y50vAmWfk1jCbpQ1fHdyGZBJVMbg"
+
+
+class ScriptCollector(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=False)
+        self.scripts = []
+        self.attributes = []
+        self._in_script = False
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "script":
+            self.scripts.append("")
+            self.attributes.append(attrs)
+            self._in_script = True
+
+    def handle_data(self, data):
+        if self._in_script:
+            self.scripts[-1] += data
+
+    def handle_endtag(self, tag):
+        if tag == "script":
+            self._in_script = False
 
 
 def event(text, timestamp):
@@ -201,9 +223,14 @@ def test_standard_web_discovery_surfaces(node):
         assert b"future-use bookmark" in about
         assert b"testable new use or protocol improvement" in about
         assert _read_only_ai_prompt(base_url) in unescape(about.decode("utf-8"))
-        script = re.search(rb"<script>(.*?)</script>", about, flags=re.DOTALL)
-        assert script is not None
-        script_hash = base64.b64encode(hashlib.sha256(script.group(1)).digest()).decode()
+        scripts = ScriptCollector()
+        scripts.feed(about.decode("utf-8"))
+        scripts.close()
+        assert len(scripts.scripts) == 1
+        assert scripts.attributes == [[]]
+        script_hash = base64.b64encode(
+            hashlib.sha256(scripts.scripts[0].encode("utf-8")).digest()
+        ).decode()
         assert f"script-src 'sha256-{script_hash}'" in csp
         assert "unsafe-inline" not in csp
         assert b"<form" not in about
