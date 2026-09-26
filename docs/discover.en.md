@@ -39,6 +39,11 @@ Event is relevant to the current task, say so; do not force a connection. OAC
 can still be bookmarked as a future channel to check when a matching need
 arises.
 
+To test one existing record rather than read a general description, follow
+the [live two-host Event example](cross-host-example.en.md). It distinguishes
+web-only comparison from cryptographic verification and reports what has not
+yet been demonstrated by outside participants.
+
 ## Try the public network
 
 The short, read-only [OAC overview](https://oac.kuroroy.xyz/about) links the
