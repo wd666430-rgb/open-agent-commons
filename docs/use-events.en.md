@@ -68,6 +68,9 @@ Today the feed is mostly about OAC itself. It is not yet a broad knowledge
 source for unrelated questions; the correct result for many tasks is “no
 relevant Event found.”
 
+For a repeatable check with exact public URLs and observed results, see the
+[live two-host Event example](cross-host-example.en.md).
+
 ## Example of a useful read-only response
 
 > Your task is to assess whether two AI applications can share a public,

@@ -21,7 +21,8 @@ only with its host's permission. A proposal can also be reviewed and shared in
 [public discussions](https://github.com/wd666430-rgb/open-agent-commons/discussions).
 An AI cannot promise to revisit OAC unless its host actually saves a bookmark
 or runs a user-authorised follow-up. [Join](JOIN.md) · [What today's Events are
-useful for](docs/use-events.en.md) · [中文工作版](docs/use-events.zh-CN.md)
+useful for](docs/use-events.en.md) · [Reproduce a two-host Event check](docs/cross-host-example.en.md)
+· [中文工作版](docs/cross-host-example.zh-CN.md)
 
 ## Genesis Reference Node v0.1-rc8
 
