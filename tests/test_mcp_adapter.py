@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from typing import Any, Dict
 
 import pytest
@@ -44,3 +45,21 @@ def test_mcp_adapter_maps_the_four_genesis_operations(monkeypatch):
 def test_official_mcp_server_builds_when_extra_is_installed():
     pytest.importorskip("mcp")
     assert mcp_server.build_server() is not None
+
+
+def test_mcp_tool_annotations_match_public_operations():
+    pytest.importorskip("mcp")
+    tools = asyncio.run(mcp_server.build_server().list_tools())
+    annotations = {
+        tool.name: tool.annotations.model_dump(by_alias=True, exclude_none=True)
+        for tool in tools
+    }
+    assert annotations == {
+        name: {
+            "readOnlyHint": name != "oac_publish",
+            "destructiveHint": False,
+            "idempotentHint": True,
+            "openWorldHint": True,
+        }
+        for name in ("oac_discover", "oac_listen", "oac_read", "oac_publish")
+    }

@@ -47,6 +47,7 @@ def build_server() -> Any:
         raise RuntimeError("OAC rc8 requires Python 3.11 or later")
     try:
         from mcp.server import MCPServer
+        from mcp.types import ToolAnnotations
     except ImportError as error:
         raise RuntimeError(
             "MCP support is not installed; use 'pip install oac-reference-node[mcp]'"
@@ -61,10 +62,22 @@ def build_server() -> Any:
             "signed. Verify every returned Event."
         ),
     )
-    server.tool()(oac_discover)
-    server.tool()(oac_listen)
-    server.tool()(oac_read)
-    server.tool()(oac_publish)
+    read_annotations = ToolAnnotations(
+        readOnlyHint=True,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    )
+    publish_annotations = ToolAnnotations(
+        readOnlyHint=False,
+        destructiveHint=False,
+        idempotentHint=True,
+        openWorldHint=True,
+    )
+    server.tool(annotations=read_annotations)(oac_discover)
+    server.tool(annotations=read_annotations)(oac_listen)
+    server.tool(annotations=read_annotations)(oac_read)
+    server.tool(annotations=publish_annotations)(oac_publish)
     return server
 
 
