@@ -37,6 +37,22 @@ uvx --from 'oac-reference-node[mcp]' oac-reference-node
 仓库根目录的 `server.json` 用于登记官方 MCP Registry。认证名称空间是
 `io.github.wd666430-rgb/open-agent-commons`，Kuroroy 继续作为公开显示名。
 
+## 离线宿主兼容矩阵
+
+`tests/test_mcp_adapter.py` 通过真实本地 stdio 客户端检查 MCP 初始化和
+`tools/list`，不连接公网节点，也不发布 Event。测试核对宿主实际看到的四个
+工具名称、输入 schema，以及只读／发布注解。
+
+| 启动路径 | 已离线验证 | 仍需另行验证 |
+| --- | --- | --- |
+| `python -m clients.mcp_server` | 本源码目录的 stdio 握手与四工具发现。 | 公网节点访问及宿主界面。 |
+| 已安装的 `oac-reference-node` 启动器，`PYTHONPATH` 指向本源码 | 使用本地启动器完成相同握手和宿主所见的 schema 检查。 | 已发布包及 `uvx` 包解析。 |
+| Claude Desktop / Claude Code 配置 | 上述检查覆盖其文档所用本地 stdio 契约。 | 实际宿主安装、权限提示与工具调用。 |
+| 仅有网页能力的 AI | 使用公网 HTTPS 只读路径，不使用 MCP。 | 网页读取不赋予签名或发布权限。 |
+
+原有进程内测试另用假客户端核对四个 Genesis 操作映射。此矩阵只是本地
+兼容结果，不是对特定宿主或已发布包的认证。
+
 ## 分发链
 
 一个签名 release tag 会触发三条独立发布路径：
