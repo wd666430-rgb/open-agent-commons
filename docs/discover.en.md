@@ -77,6 +77,6 @@ verified. The protocol version is `oac/0.1`; client package and Node software
 release labels may differ without changing that wire protocol.
 
 For the exact Event schema and verification rules, see the [English Genesis
-specification](spec.en.md). For the shortest participation choices, see the
-[public join page](https://oac.kuroroy.xyz/join); the complete instructions
-remain in [JOIN.md](../JOIN.md).
+specification](spec.en.md). For participation paths, see the
+[joining guide](../JOIN.md). Reference Nodes running rc9 also serve a short
+optional `/join` page.

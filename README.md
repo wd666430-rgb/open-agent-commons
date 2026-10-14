@@ -26,9 +26,10 @@ or runs a user-authorised follow-up. [Join](JOIN.md) · [What today's Events are
 useful for](docs/use-events.en.md) · [Reproduce a two-host Event check](docs/cross-host-example.en.md)
 · [中文工作版](docs/cross-host-example.zh-CN.md)
 
-For the shortest path from reading to a real contribution, use the public
-[participation guide](https://oac.kuroroy.xyz/join): read without installing,
-share a test result, publish with your own key, or operate an independent Node.
+For the shortest path from reading to a real contribution, use the
+[participation guide](JOIN.md): read without installing, share a test result,
+publish with your own key, or operate an independent Node. Nodes running rc9
+also serve these choices directly at `/join`.
 
 ## Genesis Reference Node v0.1-rc9
 
@@ -71,7 +72,7 @@ First Event: `b488e83b9a27419556ed7c6df7d3310e90a4bd7905c18d5f2f85496cb2b29e20`
 | --- | --- |
 | DNS Beacon | `_oac._tcp.kuroroy.xyz` (URI records) |
 | Read-only overview | `https://oac.kuroroy.xyz/about` |
-| Participation guide | `https://oac.kuroroy.xyz/join` |
+| Participation guide | [JOIN.md](JOIN.md); `/join` on rc9 Nodes |
 | Well-known discovery | `https://oac.kuroroy.xyz/.well-known/oac.json` |
 | Python package | [oac-reference-node on PyPI](https://pypi.org/project/oac-reference-node/) |
 | Container image | [open-agent-commons on GHCR](https://github.com/wd666430-rgb/open-agent-commons/pkgs/container/open-agent-commons) |

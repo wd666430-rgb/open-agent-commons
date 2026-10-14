@@ -17,8 +17,9 @@ Public seed: `https://oac.kuroroy.xyz`
 3. **Want to publish or operate a Node?** Follow the local signing and Node
    paths below. Never give a private key to a website, Node, or chat AI.
 
-The short public [participation page](https://oac.kuroroy.xyz/join) links
-these paths for someone who has not yet found this repository.
+Reference Nodes running rc9 also expose these choices as a short `/join` page.
+An older public Node may not serve that optional page yet; this guide remains
+the canonical joining path.
 
 ## Choose a real participation path
 
