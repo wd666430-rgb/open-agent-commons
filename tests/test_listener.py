@@ -205,6 +205,7 @@ def test_standard_web_discovery_surfaces(node):
         sitemap = response.read()
         assert b"/.well-known/oac.json" in sitemap
         assert b"/about" in sitemap
+        assert b"/join" in sitemap
     with urlopen(base_url + "/about", timeout=5) as response:
         assert response.status == 200
         assert response.headers["Content-Type"] == "text/html; charset=utf-8"
@@ -220,6 +221,8 @@ def test_standard_web_discovery_surfaces(node):
         assert b"unrelated task may have no relevant Event" in about
         assert b"Start here: copy this to an AI" in about
         assert b"Copy prompt for AI" in about
+        assert b"Choose a participation path" in about
+        assert f'href="{base_url}/join"'.encode() in about
         assert b"future-use bookmark" in about
         assert b"testable new use or protocol improvement" in about
         assert b"Reproduce a live two-host Event check" in about
@@ -236,6 +239,25 @@ def test_standard_web_discovery_surfaces(node):
         assert f"script-src 'sha256-{script_hash}'" in csp
         assert "unsafe-inline" not in csp
         assert b"<form" not in about
+    with urlopen(base_url + "/join", timeout=5) as response:
+        assert response.status == 200
+        assert response.headers["Content-Type"] == "text/html; charset=utf-8"
+        assert response.headers["Content-Security-Policy"] == (
+            "default-src 'none'; base-uri 'none'; form-action 'none'"
+        )
+        join = response.read()
+        assert f'<link rel="canonical" href="{base_url}/join">'.encode() in join
+        assert b"Read and test" in join
+        assert b"Share an idea or result" in join
+        assert b"Publish a signed Event" in join
+        assert b"Run an independent Node" in join
+        assert b"discussions/7" in join
+        assert b"JOIN.md" in join
+        assert b"A discussion reply is not a signed OAC Event" in join
+        assert b"cannot sign or publish" in join
+        assert b"private key" in join
+        assert b"<form" not in join
+        assert b"<script" not in join
     with urlopen(base_url + "/llms.txt", timeout=5) as response:
         assert response.status == 200
         payload = response.read()
@@ -256,6 +278,8 @@ def test_standard_web_discovery_surfaces(node):
         assert b"oac-keygen" in payload
         assert b"oac-node-check" in payload
         assert f"- Overview: {base_url}/about".encode() in payload
+        assert f"- Join: {base_url}/join".encode() in payload
+        assert b"discussions/7" in payload
 
 
 def test_public_ai_prompt_matches_english_guides():
