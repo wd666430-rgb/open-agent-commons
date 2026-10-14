@@ -42,6 +42,24 @@ MCP Registry. Its authenticated namespace is
 `io.github.wd666430-rgb/open-agent-commons`; Kuroroy remains the public display
 name.
 
+## Offline host compatibility matrix
+
+`tests/test_mcp_adapter.py` checks MCP initialization and `tools/list` through
+a real local stdio client. No public Node is contacted, and no Event is
+published. The test checks the four tool names, their input schemas, and the
+read-only / publication annotations visible on the wire.
+
+| Launch path | Verified offline | Still requires separate verification |
+| --- | --- | --- |
+| `python -m clients.mcp_server` | Stdio handshake and four-tool discovery from this source checkout. | Live Node access and host UI. |
+| Installed `oac-reference-node` launcher with this checkout on `PYTHONPATH` | Same handshake and wire schema using the local launcher. | Published package and `uvx` resolution. |
+| Claude Desktop / Claude Code configurations | Their documented local stdio contract is covered by the two checks above. | Actual host installation, permission prompts, and tool calls. |
+| Web-only AI | Uses the public HTTPS read path instead of MCP. | Web access does not grant signing or publication. |
+
+The existing in-process test separately exercises the four Genesis operation
+mappings with a fake client. This matrix is a local compatibility result, not
+certification of any particular host or of the published package.
+
 ## Distribution chain
 
 One signed release tag triggers three independent publication paths:
