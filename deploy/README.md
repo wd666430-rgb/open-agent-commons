@@ -76,6 +76,23 @@ Keep an edge-level request limit in front of the Node as defense in depth; the
 process-local limits are not a substitute for Cloudflare or reverse-proxy
 controls.
 
+### Optional local discovery log
+
+`--attribution-log /PRIVATE/PATH/access.jsonl` records a small local JSONL
+request summary for discovery analysis. It is off by default and is not a
+Genesis endpoint. The record omits IP addresses, cookies, request bodies,
+query strings, and referrer paths; the file is created mode 0600 and rotated
+at 64 MiB. Keep it outside public directories and do not include it in a
+release, bug report, or shared backup. The flag exists in rc10 so an existing
+deployment using this optional setting can upgrade without dropping it.
+
+Before changing a running Node, stage the new package in a separate
+environment, verify its CLI accepts every current argument, make and verify a
+SQLite online backup, and retain the previous executable and service config.
+After switching, check local discovery, `/join`, a known Event, and the public
+HTTPS endpoints. Revert to the retained executable and config if any check
+fails; do not replace the database or identity during a software rollback.
+
 ## Keep the Node running on macOS
 
 The Tunnel service and the OAC Node are separate processes. macOS background

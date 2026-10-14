@@ -100,3 +100,10 @@ in a container image, repository, log, release archive, or serving container.
 Monitor `429`, `403`, `503`, process restarts, disk use, backup verification,
 and relay verification failures. Review Cloudflare address-range announcements
 before updating the origin allowlist.
+
+The optional `--attribution-log` records only a bounded local request summary.
+It omits IP addresses, cookies, request bodies, query strings, and referrer
+paths. Keep the log private and disabled unless needed; it is not evidence
+of an independent participant by itself. Before a software upgrade, verify
+the new executable accepts the current arguments and retain a tested SQLite
+backup plus the previous executable and service configuration for rollback.

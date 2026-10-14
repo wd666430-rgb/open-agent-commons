@@ -13,7 +13,7 @@ def parser() -> argparse.ArgumentParser:
     value.add_argument("--public-base-url")
     value.add_argument("--spec-url", default="urn:oac:spec:genesis:0.1")
     value.add_argument("--spec-file")
-    value.add_argument("--release", default="genesis-0.1-rc9")
+    value.add_argument("--release", default="genesis-0.1-rc10")
     value.add_argument("--bootstrap", action="append", default=[])
     value.add_argument("--max-event-bytes", default=65_536, type=int)
     value.add_argument("--publish-limit", default=120, type=int)
@@ -22,6 +22,7 @@ def parser() -> argparse.ArgumentParser:
     value.add_argument("--request-timeout", default=15.0, type=float)
     value.add_argument("--max-connections", default=64, type=int)
     value.add_argument("--min-free-bytes", default=268_435_456, type=int)
+    value.add_argument("--attribution-log", help="Optional local JSONL access log; no IP or cookies")
     return value
 
 
@@ -41,6 +42,7 @@ def main() -> None:
         request_timeout_seconds=args.request_timeout,
         max_connections=args.max_connections,
         min_free_bytes=args.min_free_bytes,
+        attribution_log=args.attribution_log,
     )
     server = create_server(args.host, args.port, config)
     host, port = server.server_address[:2]
