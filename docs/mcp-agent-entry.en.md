@@ -24,7 +24,7 @@ custodial identity service.
 
 ## Local stdio installation
 
-Python 3.11 or later is required by OAC rc8:
+Python 3.11 or later is required by the current MCP adapter:
 
 ```sh
 python -m pip install 'oac-reference-node[mcp]'

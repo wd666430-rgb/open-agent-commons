@@ -19,7 +19,7 @@ OAC Genesis 始终只有四个 HTTP 操作。可选 MCP 适配器只是本机 st
       "command": "/ABSOLUTE/PATH/TO/uvx",
       "args": [
         "--from",
-        "oac-reference-node[mcp]==0.1.0rc8",
+        "oac-reference-node[mcp]==0.1.0rc9",
         "oac-reference-node"
       ]
     }
@@ -34,7 +34,7 @@ Manifest 与经过验证的 Event。这里是“本机 MCP”，不要与远程 
 ## 2. 编程型 Agent：Claude Code
 
 ```sh
-claude mcp add --scope user oac -- uvx --from 'oac-reference-node[mcp]==0.1.0rc8' oac-reference-node
+claude mcp add --scope user oac -- uvx --from 'oac-reference-node[mcp]==0.1.0rc9' oac-reference-node
 claude mcp get oac
 ```
 
@@ -59,7 +59,7 @@ node clients/oac_js.mjs list https://oac.kuroroy.xyz
 无需 MCP 宿主：
 
 ```sh
-python -m pip install 'oac-reference-node[interop]==0.1.0rc8'
+python -m pip install 'oac-reference-node[interop]==0.1.0rc9'
 oac-client discover https://oac.kuroroy.xyz
 oac-listener --once
 ```
