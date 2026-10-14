@@ -7,11 +7,15 @@ import binascii
 import hashlib
 import json
 import math
+import os
+import re
 import shutil
 import socket
 import threading
 import time
+import uuid
 from collections import deque
+from datetime import datetime, timezone
 from html import escape
 from dataclasses import dataclass, field
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -82,7 +86,7 @@ class NodeConfig:
     public_base_url: Optional[str] = None
     spec_url: str = "urn:oac:spec:genesis:0.1"
     spec_path: Optional[str] = None
-    release: str = "genesis-0.1-rc9"
+    release: str = "genesis-0.1-rc10"
     bootstrap: List[str] = field(default_factory=list)
     max_event_bytes: int = MAX_EVENT_BYTES
     publish_limit: int = DEFAULT_PUBLISH_LIMIT
@@ -91,6 +95,7 @@ class NodeConfig:
     request_timeout_seconds: float = DEFAULT_REQUEST_TIMEOUT_SECONDS
     max_connections: int = DEFAULT_MAX_CONNECTIONS
     min_free_bytes: int = DEFAULT_MIN_FREE_BYTES
+    attribution_log: Optional[str] = None
 
 
 class SlidingWindowLimiter:
@@ -171,6 +176,7 @@ class OACHTTPServer(ThreadingHTTPServer):
             config.publish_window_seconds,
         )
         self._connection_slots = threading.BoundedSemaphore(config.max_connections)
+        self._attribution_lock = threading.Lock()
         self.request_queue_size = config.max_connections
         super().__init__(server_address, OACRequestHandler)
 
@@ -223,6 +229,8 @@ class OACRequestHandler(BaseHTTPRequestHandler):
         self.connection.settimeout(self.server.config.request_timeout_seconds)
 
     def end_headers(self) -> None:
+        self.close_connection = True
+        self.send_header("Connection", "close")
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("X-Frame-Options", "DENY")
         self.send_header("Referrer-Policy", "no-referrer")
@@ -234,6 +242,52 @@ class OACRequestHandler(BaseHTTPRequestHandler):
     def log_message(self, fmt: str, *args: Any) -> None:
         # Retain the standard concise access log; no human UI is exposed.
         super().log_message(fmt, *args)
+
+    def log_request(self, code: int | str = "-", size: int | str = "-") -> None:
+        super().log_request(code, size)
+        path = self.server.config.attribution_log
+        if not path:
+            return
+        try:
+            target = urlsplit(self.path)
+            trace = self.headers.get("X-OAC-Trace-ID", "")[:128]
+            if not re.fullmatch(r"[A-Za-z0-9._:-]{1,128}", trace):
+                trace = ""
+            referrer = urlsplit(self.headers.get("Referer", ""))
+            hostname = referrer.hostname
+            host = f"[{hostname}]" if hostname and ":" in hostname else hostname
+            origin = (
+                f"{referrer.scheme}://{host}"
+                if referrer.scheme in {"http", "https"} and host else ""
+            )
+            record = {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "request_id": uuid.uuid4().hex,
+                "method": self.command,
+                "endpoint": target.path,
+                "status": int(code),
+                "user_agent": self.headers.get("User-Agent", "")[:256],
+                "agent_hint": self.headers.get("X-OAC-Agent", "")[:128],
+                "referrer": origin[:256],
+                "trace_id": trace,
+                "probe": self.headers.get("X-OAC-Attribution-Probe") == "1",
+            }
+            # Four bounded local files. Logging failures cannot change a response.
+            with self.server._attribution_lock:
+                if os.path.exists(path) and os.path.getsize(path) >= 64 * 1024 * 1024:
+                    for index in (2, 1):
+                        older = f"{path}.{index}"
+                        if os.path.exists(older):
+                            os.replace(older, f"{path}.{index + 1}")
+                    os.replace(path, f"{path}.1")
+                fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_APPEND, 0o600)
+                try:
+                    payload = json.dumps(record, ensure_ascii=False, separators=(",", ":"))
+                    os.write(fd, (payload + "\n").encode())
+                finally:
+                    os.close(fd)
+        except (OSError, TypeError, ValueError):
+            pass
 
     def _json(
         self, status: int, value: Dict[str, Any], headers: Optional[Dict[str, str]] = None
