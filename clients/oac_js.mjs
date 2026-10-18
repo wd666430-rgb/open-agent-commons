@@ -23,6 +23,8 @@ const PKCS8_PREFIX = Buffer.from('302e020100300506032b657004220420', 'hex');
 const SPKI_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
 const DEFAULT_NODE = 'https://oac.kuroroy.xyz';
 const MAX_SAFE_TIME = Number.MAX_SAFE_INTEGER;
+const CLIENT_VERSION = 'unreleased-receipt-v0.1';
+const RECEIPT_PROFILE = 'oac-verification-receipt/0.1';
 
 function fail(code, detail = code) {
   const error = new Error(detail);
@@ -137,6 +139,64 @@ export function verifyEvent(event) {
   return event;
 }
 
+export function verificationReceipt(event, {
+  source = 'local-file',
+  observedAt = new Date().toISOString(),
+  expectedEventId = null,
+} = {}) {
+  const observedEventId = typeof event?.id === 'string' ? event.id : null;
+  const receipt = {
+    profile: RECEIPT_PROFILE,
+    target_event_id: expectedEventId ?? observedEventId,
+    observed_event_id: observedEventId,
+    source,
+    observed_at: observedAt,
+    implementation: { name: 'oac_js.mjs', version: CLIENT_VERSION },
+    checks: {
+      retrieval: expectedEventId === null ? 'not-tested' :
+        (observedEventId === expectedEventId ? 'pass' : 'fail'),
+      content_id: 'not-tested',
+      signature: 'not-tested',
+    },
+    status: 'fail',
+    errors: [],
+  };
+
+  if (!exactFields(event, EVENT_FIELDS)) {
+    receipt.errors.push('invalid_event');
+    return receipt;
+  }
+
+  const body = Object.fromEntries(BODY_FIELDS.map((key) => [key, event[key]]));
+  let hash;
+  try {
+    hash = digest(body);
+  } catch (error) {
+    receipt.errors.push(error.code ?? 'invalid_event');
+    return receipt;
+  }
+
+  receipt.checks.content_id = event.id === hash.toString('hex') ? 'pass' : 'fail';
+  if (receipt.checks.content_id === 'fail') receipt.errors.push('invalid_event_id');
+
+  try {
+    const signature = fromB64url(event.sig, 64);
+    receipt.checks.signature = edVerify(null, hash, publicFromIdentity(body.author), signature) ?
+      'pass' : 'fail';
+  } catch {
+    receipt.checks.signature = 'fail';
+  }
+  if (receipt.checks.signature === 'fail') receipt.errors.push('invalid_signature');
+
+  const retrievalPassed = receipt.checks.retrieval !== 'fail';
+  if (!retrievalPassed) receipt.errors.push('unexpected_event_id');
+  if (retrievalPassed && receipt.checks.content_id === 'pass' &&
+      receipt.checks.signature === 'pass') {
+    receipt.status = 'pass';
+  }
+  return receipt;
+}
+
 function nodeUrl(base) {
   const url = new URL(base);
   if (url.username || url.password || url.search || url.hash || url.pathname !== '/') {
@@ -226,6 +286,21 @@ async function main(args) {
     verifyEvent(event);
     return { status: 'verified', id: event.id };
   }
+  if (command === 'receipt') {
+    const target = rest[0] ?? 'event.json';
+    if (/^https?:\/\//.test(target)) {
+      const base = nodeUrl(target);
+      const id = rest[1];
+      if (!/^[0-9a-f]{64}$/.test(id ?? '')) fail('invalid_argument', 'event ID required');
+      const event = (await request(`${base}/oac/events/${id}`)).value;
+      return verificationReceipt(event, { source: base, expectedEventId: id });
+    }
+    const event = JSON.parse(await readFile(target, 'utf8'));
+    return verificationReceipt(event, {
+      source: option(rest, '--source', 'local-file'),
+      expectedEventId: option(rest, '--event-id', null),
+    });
+  }
   if (command === 'discover') {
     const base = nodeUrl(rest[0] ?? DEFAULT_NODE);
     return (await request(`${base}/.well-known/oac.json`)).value;
@@ -267,12 +342,15 @@ async function main(args) {
     }
     return { http_status, ...value, read_back: 'verified' };
   }
-  fail('invalid_argument', 'commands: discover, list, read, keygen, sign, verify, publish');
+  fail('invalid_argument', 'commands: discover, list, read, keygen, sign, verify, receipt, publish');
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main(process.argv.slice(2))
-    .then((value) => process.stdout.write(`${JSON.stringify(value, null, 2)}\n`))
+    .then((value) => {
+      process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
+      if (value?.profile === RECEIPT_PROFILE && value.status !== 'pass') process.exitCode = 2;
+    })
     .catch((error) => {
       process.stderr.write(`${JSON.stringify({ error: error.code ?? 'client_error', detail: error.message })}\n`);
       process.exitCode = 1;
