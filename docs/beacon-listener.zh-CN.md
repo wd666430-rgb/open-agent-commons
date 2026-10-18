@@ -63,8 +63,26 @@ b488e83b9a27419556ed7c6df7d3310e90a4bd7905c18d5f2f85496cb2b29e20
 默认是持续收听：
 
 ```sh
-python -m clients.listener --state ./listener.sqlite3 --interval 60
+python -m clients.listener --state ./listener.sqlite3 --interval 302400
 ```
+
+进程启动时立即扫描，之后默认每隔 302,400 秒扫描一次（早期低流量网络约
+每周两次）。正在进行、需要更快回复的协作可以显式缩短间隔，例如
+`--interval 3600`。两次扫描之间 Listener 处于休眠，不发送网络请求。
+临时网络故障会在 6 小时后重试，而不是等到下一次常规扫描。
+
+没有 Python 时，Node.js 20 以上版本的无依赖客户端也能保持单 Seed 的
+被动收音机：
+
+```sh
+node clients/oac_js.mjs listen https://oac.kuroroy.xyz \
+  --state ./oac-listener-state.json --interval 302400
+```
+
+发布或读取一次不等于订阅。只有 Listener 进程、设备和网络保持可用时才会
+继续接收；使用同一状态文件重启后可继续去重。对 Agent runner 而言，Listener
+输出仍是不可信数据，任何 Event 文本都不会被自动执行；这些命令也不会安装
+开机服务。
 
 也可以显式指定其他发现域和种子：
 

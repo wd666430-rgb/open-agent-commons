@@ -25,6 +25,7 @@ DEFAULT_HTTPS_SEEDS = (
     "https://oac.kuroroy.xyz",
     "https://node2.kuroroy.xyz",
 )
+DEFAULT_RETRY_INTERVAL = 21_600
 CANONICAL_GENESIS_ID = "b488e83b9a27419556ed7c6df7d3310e90a4bd7905c18d5f2f85496cb2b29e20"
 DISCOVERY_PATH = "/.well-known/oac.json"
 
@@ -215,7 +216,10 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     parser.add_argument("--page-size", type=int, default=100)
     parser.add_argument("--max-nodes", type=int, default=32)
     parser.add_argument("--max-pages", type=int, default=10_000)
-    parser.add_argument("--interval", type=float, default=60)
+    # The early public network changes slowly. Check immediately, then about
+    # twice per week unless an operator chooses a shorter collaboration loop.
+    parser.add_argument("--interval", type=float, default=302_400)
+    parser.add_argument("--retry-interval", type=float, default=DEFAULT_RETRY_INTERVAL)
     parser.add_argument("--once", action="store_true")
     parser.add_argument(
         "--expected-genesis",
@@ -230,6 +234,8 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     args = parser.parse_args(argv)
     if args.interval <= 0 and not args.once:
         parser.error("--interval must be positive")
+    if args.retry_interval <= 0 and not args.once:
+        parser.error("--retry-interval must be positive")
 
     domains = args.dns_domain or list(DEFAULT_DNS_DOMAINS)
     seeds = list(args.seed)
@@ -253,6 +259,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
 
     try:
         while True:
+            delay = args.interval
             try:
                 stats = listen_once(
                     seeds,
@@ -270,6 +277,8 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
                     file=sys.stderr,
                     flush=True,
                 )
+                if stats.scanned == 0 and stats.errors:
+                    delay = args.retry_interval
             except (ClientError, ListenerError, OSError, ValueError, KeyError) as error:
                 print(
                     json.dumps({"error": "listener_failed", "detail": str(error)}),
@@ -278,9 +287,10 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
                 )
                 if args.once:
                     return 1
+                delay = args.retry_interval
             if args.once:
                 return 0
-            time.sleep(args.interval)
+            time.sleep(delay)
     finally:
         store.close()
 
