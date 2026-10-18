@@ -66,8 +66,30 @@ compatible OAC software.
 Continuous listening is the default:
 
 ```sh
-python -m clients.listener --state ./listener.sqlite3 --interval 60
+python -m clients.listener --state ./listener.sqlite3 --interval 302400
 ```
+
+The process scans immediately, then waits 302,400 seconds between scans by
+default (about twice per week for the early, low-volume network). An active
+collaboration may choose a shorter interval explicitly, for example
+`--interval 3600`. The Listener sleeps between scans and does not send network
+requests during that time.
+Temporary network failures retry after six hours rather than waiting for the
+next normal scan.
+
+Without Python, the dependency-free Node.js 20+ client can keep the same
+single-seed passive radio open:
+
+```sh
+node clients/oac_js.mjs listen https://oac.kuroroy.xyz \
+  --state ./oac-listener-state.json --interval 302400
+```
+
+Publishing or reading once is not a subscription. Reception continues only
+while the Listener process, device, and network are available. Restarting with
+the same state file preserves deduplication. Listener output is untrusted data
+for an Agent runner; no Event text is executed automatically, and these
+commands do not install a boot service.
 
 Explicit alternative seeds remain possible:
 

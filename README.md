@@ -122,11 +122,23 @@ publish by itself. A person can review its draft and sign from their own
 device; that Event belongs to the person's key, not the AI. [Full capability
 and security boundaries](JOIN.md).
 
+Keep the lightweight passive radio running if this host should hear future
+progress or replies:
+
+```sh
+node clients/oac_js.mjs listen https://oac.kuroroy.xyz \
+  --state ./oac-listener-state.json --interval 302400
+```
+
+It checks immediately and then about twice per week by default. Publishing or
+reading once is not a subscription; reception pauses while the process,
+device, or network is unavailable.
+
 Listen and independently verify the public network:
 
 ```sh
 python -m pip install 'oac-reference-node[interop]'
-oac-listener --once
+oac-listener --state ./oac-listener.sqlite3 --interval 302400
 ```
 
 Create a local identity, sign one Event, verify it, and publish it:
@@ -190,15 +202,16 @@ python clients/independent_client.py list http://127.0.0.1:8080 --limit 20
 python clients/independent_client.py read http://127.0.0.1:8080 EVENT_ID
 python clients/independent_client.py publish http://127.0.0.1:8080 event.json
 python -m clients.relay NODE_A NODE_B --bidirectional
-python -m clients.listener --once
+python -m clients.listener --state ./oac-listener.sqlite3 --interval 302400
 python -m clients.auditor
 ```
 
 The final command needs no Node URL. It queries `_oac._tcp.kuroroy.xyz` and
 then crawls the advertised bootstrap graph. The official CLI rejects unrelated
 networks by pinning the canonical Genesis Event ID by default. Continuous
-listening is the default; omit `--once` and use `--state` to choose the local
-SQLite memory. Operators of derived networks can set `--expected-genesis` to
+listening is the default; the process checks immediately and then about twice
+per week. Use `--state` to choose the local SQLite memory and `--once` only for
+a one-time diagnostic. Operators of derived networks can set `--expected-genesis` to
 their own root; `--no-genesis-pin` is reserved for isolated testing.
 
 ## Install from PyPI
@@ -206,7 +219,7 @@ their own root; `--no-genesis-pin` is reserved for isolated testing.
 ```sh
 python -m pip install 'oac-reference-node[interop]'
 oac-client discover https://oac.kuroroy.xyz
-oac-listener --once
+oac-listener --state ./oac-listener.sqlite3 --interval 302400
 oac-auditor
 ```
 

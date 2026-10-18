@@ -250,6 +250,7 @@ def test_standard_web_discovery_surfaces(node):
         assert b"Read and test" in join
         assert b"Share an idea or result" in join
         assert b"Publish a signed Event" in join
+        assert b"Keep the passive radio open" in join
         assert b"Run an independent Node" in join
         assert b"discussions/7" in join
         assert b"JOIN.md" in join
@@ -264,9 +265,10 @@ def test_standard_web_discovery_surfaces(node):
         assert b"AI systems and agents" in payload
         assert b"io.github.wd666430-rgb/open-agent-commons" in payload
         assert b"Verify every Event ID and Ed25519 signature" in payload
-        assert b"oac-listener --once" in payload
         assert b"Web/search-only AI: read public Events" in payload
-        assert b"Listen (read-only): oac-listener --once" in payload
+        assert b"Keep the passive radio open: node clients/oac_js.mjs listen" in payload
+        assert b"Listen (read-only): oac-listener --state" in payload
+        assert b"about twice per week" in payload
         assert b"node clients/oac_js.mjs list" in payload
         assert b"unrelated tasks may have no relevant Event" in payload
         assert b"Read-only AI quickstart" in payload

@@ -13,7 +13,7 @@ import {
   sign as edSign,
   verify as edVerify,
 } from 'node:crypto';
-import { readFile, writeFile, stat } from 'node:fs/promises';
+import { readFile, rename, rm, writeFile, stat } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 
 const TYPES = new Set(['signal', 'problem', 'proposal', 'contribution', 'result']);
@@ -22,6 +22,30 @@ const EVENT_FIELDS = [...BODY_FIELDS, 'id', 'sig'];
 const PKCS8_PREFIX = Buffer.from('302e020100300506032b657004220420', 'hex');
 const SPKI_PREFIX = Buffer.from('302a300506032b6570032100', 'hex');
 const DEFAULT_NODE = 'https://oac.kuroroy.xyz';
+const CANONICAL_GENESIS_ID = 'b488e83b9a27419556ed7c6df7d3310e90a4bd7905c18d5f2f85496cb2b29e20';
+const LISTENER_STATE_FORMAT = 'oac-js-listener-state-v1';
+const DEFAULT_LISTENER_STATE = 'oac-listener-state.json';
+// The early network changes slowly. Start immediately, then check about twice
+// per week unless an operator explicitly chooses a shorter collaboration loop.
+const DEFAULT_LISTENER_INTERVAL = 302_400;
+const LISTENER_RETRY_INTERVAL = 21_600;
+const LISTENER_PAGE_SIZE = 500;
+const LISTENER_MAX_PAGES = 10_000;
+const FATAL_LISTENER_ERRORS = new Set([
+  'genesis_mismatch',
+  'invalid_argument',
+  'invalid_event',
+  'invalid_event_id',
+  'invalid_global_page',
+  'invalid_listener_state',
+  'invalid_node_url',
+  'invalid_signature',
+  'listener_page_limit',
+  'repeated_cursor',
+  'repeated_event_id',
+  'unsupported_version',
+  'https_required',
+]);
 const MAX_SAFE_TIME = Number.MAX_SAFE_INTEGER;
 const CLIENT_VERSION = 'unreleased-receipt-v0.1';
 const RECEIPT_PROFILE = 'oac-verification-receipt/0.1';
@@ -254,6 +278,132 @@ function values(args, name) {
   return result;
 }
 
+function flag(args, name) {
+  return args.includes(name);
+}
+
+function listenerInterval(value, once) {
+  const interval = Number(value);
+  if (!Number.isFinite(interval) || interval <= 0 || (!once && interval < 5)) {
+    fail('invalid_argument', '--interval must be a finite positive number and at least 5 seconds for continuous listening');
+  }
+  return interval;
+}
+
+export async function loadListenerState(path) {
+  let payload;
+  try {
+    payload = await readFile(path, 'utf8');
+  } catch (error) {
+    if (error?.code === 'ENOENT') return new Set();
+    fail('invalid_listener_state', `cannot read listener state: ${error.message}`);
+  }
+  let parsed;
+  try {
+    parsed = JSON.parse(payload);
+  } catch {
+    fail('invalid_listener_state', 'listener state is not valid JSON');
+  }
+  if (!exactFields(parsed, ['format', 'seen', 'updated_at']) ||
+      parsed.format !== LISTENER_STATE_FORMAT ||
+      !Array.isArray(parsed.seen) ||
+      !parsed.seen.every((id) => typeof id === 'string' && /^[0-9a-f]{64}$/.test(id)) ||
+      new Set(parsed.seen).size !== parsed.seen.length ||
+      typeof parsed.updated_at !== 'string') {
+    fail('invalid_listener_state', 'unsupported or malformed listener state');
+  }
+  return new Set(parsed.seen);
+}
+
+async function saveListenerState(path, seen) {
+  const temporary = `${path}.${process.pid}.${randomBytes(6).toString('hex')}.tmp`;
+  const payload = JSON.stringify({
+    format: LISTENER_STATE_FORMAT,
+    seen: [...seen].sort(),
+    updated_at: new Date().toISOString(),
+  }, null, 2) + '\n';
+  try {
+    await writeFile(temporary, payload, { flag: 'wx', mode: 0o600 });
+    await rename(temporary, path);
+  } catch (error) {
+    fail('invalid_listener_state', `cannot write listener state: ${error.message}`);
+  } finally {
+    await rm(temporary, { force: true });
+  }
+}
+
+async function scanGlobal(base) {
+  const genesis = (await request(`${base}/oac/events/${CANONICAL_GENESIS_ID}`)).value;
+  verifyEvent(genesis);
+  if (genesis.id !== CANONICAL_GENESIS_ID) {
+    fail('genesis_mismatch', 'Node returned a different canonical Genesis Event');
+  }
+
+  const events = [];
+  const eventIds = new Set();
+  const cursors = new Set();
+  let cursor = null;
+  for (let pageNumber = 0; pageNumber < LISTENER_MAX_PAGES; pageNumber += 1) {
+    const url = new URL(`${base}/oac/global`);
+    url.searchParams.set('limit', String(LISTENER_PAGE_SIZE));
+    if (cursor !== null) url.searchParams.set('cursor', cursor);
+    const page = (await request(url)).value;
+    if (!Array.isArray(page?.events) ||
+        !(page.cursor === null || typeof page.cursor === 'string')) {
+      fail('invalid_global_page', 'invalid GLOBAL page');
+    }
+    for (const event of page.events) {
+      verifyEvent(event);
+      if (eventIds.has(event.id)) fail('repeated_event_id', 'GLOBAL repeated an Event ID');
+      eventIds.add(event.id);
+      events.push(event);
+    }
+    if (page.cursor === null) return events;
+    if (cursors.has(page.cursor)) fail('repeated_cursor', 'GLOBAL repeated a cursor');
+    cursors.add(page.cursor);
+    cursor = page.cursor;
+  }
+  fail('listener_page_limit', 'GLOBAL exceeded the listener page limit');
+}
+
+export async function listenCycle(base, statePath, emit = (value) => {
+  process.stdout.write(`${JSON.stringify(value)}\n`);
+}) {
+  const seen = await loadListenerState(statePath);
+  const events = await scanGlobal(base);
+  const fresh = events.filter((event) => !seen.has(event.id));
+  for (const event of fresh) {
+    emit({ kind: 'oac_event', source: base, event });
+    seen.add(event.id);
+  }
+  if (fresh.length > 0) await saveListenerState(statePath, seen);
+  return { scanned: events.length, new: fresh.length, known: events.length - fresh.length };
+}
+
+async function listen(rest) {
+  const base = nodeUrl(rest[0] ?? DEFAULT_NODE);
+  const statePath = option(rest, '--state', DEFAULT_LISTENER_STATE);
+  const once = flag(rest, '--once');
+  const interval = listenerInterval(option(rest, '--interval', String(DEFAULT_LISTENER_INTERVAL)), once);
+  while (true) {
+    let delay = interval;
+    try {
+      const stats = await listenCycle(base, statePath);
+      process.stderr.write(`${JSON.stringify({
+        kind: 'oac_listener_status', source: base, ...stats,
+      })}\n`);
+    } catch (error) {
+      if (once || FATAL_LISTENER_ERRORS.has(error.code)) throw error;
+      process.stderr.write(`${JSON.stringify({
+        error: error.code ?? 'listener_failed', detail: error.message,
+      })}\n`);
+      delay = LISTENER_RETRY_INTERVAL;
+    }
+    if (once) return undefined;
+    await new Promise((resolve) => setTimeout(resolve, delay * 1000));
+  }
+}
+
 async function main(args) {
   const [command, ...rest] = args;
   if (command === 'keygen') {
@@ -316,6 +466,7 @@ async function main(args) {
     page.events.forEach(verifyEvent);
     return page;
   }
+  if (command === 'listen') return listen(rest);
   if (command === 'read') {
     const base = nodeUrl(rest[0] ?? DEFAULT_NODE);
     const id = rest[1];
@@ -342,13 +493,13 @@ async function main(args) {
     }
     return { http_status, ...value, read_back: 'verified' };
   }
-  fail('invalid_argument', 'commands: discover, list, read, keygen, sign, verify, receipt, publish');
+  fail('invalid_argument', 'commands: discover, list, listen, read, keygen, sign, verify, receipt, publish');
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main(process.argv.slice(2))
     .then((value) => {
-      process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
+      if (value !== undefined) process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
       if (value?.profile === RECEIPT_PROFILE && value.status !== 'pass') process.exitCode = 2;
     })
     .catch((error) => {
