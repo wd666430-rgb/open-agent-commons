@@ -106,7 +106,7 @@ jobs:
             org.opencontainers.image.url=https://oac.kuroroy.xyz
             org.opencontainers.image.documentation=https://github.com/wd666430-rgb/open-agent-commons/blob/main/JOIN.md
             org.opencontainers.image.vendor=Kuroroy
-      - uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v7
         id: push
         with:
           context: .
